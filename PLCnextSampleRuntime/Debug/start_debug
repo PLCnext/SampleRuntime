@@ -1,0 +1,32 @@
+#!/bin/sh
+
+TARGET_IP="149.208.93.250"
+TARGET_USER="root"
+TARGET_PASSWORD="root"
+APP="PLCnextSampleRuntime"
+REMOTE_PATH="/opt/PLCnextSampleRuntime"
+
+
+echo "Killing gdbserver, if it is running"
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} 'kill -9 `pidof gdbserver`'
+
+echo "Stopping plcnext firmware\n"
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} '/etc/init.d/plcnext stop'
+
+echo "Killing application, if it is running\n"
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} ${COMMAND} 'kill -9 `pidof '${APP}'`'
+
+echo "Copy application to target\n"
+# you can also copy a whole directory with the scp -r option, if the application
+# consists of several files
+sshpass -p "${TARGET_PASSWORD}" scp ${APP} ${TARGET_USER}@${TARGET_IP}:${REMOTE_PATH}/${APP}
+
+echo "Starting plcnext firmware\n"
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} '/etc/init.d/plcnext start'
+
+sleep 3s
+
+echo "Attaching gdbserver"
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} ${COMMAND} 'gdbserver :2345 --attach `pidof '${APP}'`'
+
+echo "Finished"
