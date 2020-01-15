@@ -22,14 +22,12 @@ The PLCnext Command-Line Interface (CLI) includes a template for a PLM project, 
 
 ### Procedure
 
-This procedure was developed and tested using an AXC F 2152 PLCnext Control with firmware version 2019.6 (19.6.0.20989) and the PLCnext CLI version 2019.0 LTS (19.0.2.779), and is not guaranteed to work with any other versions. This version of the CLI does not support all available Component GDS Port features, so for this example the shared object library and associated meta files are built using a carefully selected sequence of CLI commands. Any deviation from this sequence of commands is not guaranteed to work.
-
 1. Using the PLCnext CLI, create a new project based on the standard template and set the target for the build. In this example, the project is called `RuntimeOpc`, but you can call it whatever you want.
    
    ```
    plcncli new project -n RuntimeOpc
    cd RuntimeOpc
-   plcncli set target --add -n AXCF2152 -v 2019.6
+   plcncli set target --add -n AXCF2152 -v 2020.0
    ```
 
 1. The CLI default project includes source files for a real-time C++ program. This example does not use real-time PLM programs, and so these program source files can be deleted.
@@ -42,14 +40,16 @@ This procedure was developed and tested using an AXC F 2152 PLCnext Control with
 1. Open the Component .hpp file in your favourite editor, and add the following GDS Port definition in the section indicated by the auto-generated comment:
 
    ```cpp
-   //#port
-   //#attributes(Opc)
-   struct DATA {
-       //#attributes(Input)
-       int32 Runtime_RW = 0;
-       //#attributes(Output)
-       int32 Runtime_RO = 0;
-   } Data;
+    //#attributes(Hidden|Opc)
+    struct DATA {
+        //#attributes(Input)
+        int32 Runtime_RW = 0;
+        //#attributes(Output)
+        int32 Runtime_RO = 0;
+    };
+
+    //#port
+    DATA data;
    ```
 
    This will create two OPC UA data items; one read/write (Input) and one read-only (Output), each holding an integer value. Corresponding GDS variables will also be created using this information.
@@ -61,34 +61,6 @@ This procedure was developed and tested using an AXC F 2152 PLCnext Control with
    ```
    plcncli generate code
    plcncli generate config
-   ```
-
-1. In the `intermediate/code` directory, open the Library .meta.cpp file in your favourite editor, and change the attribute on the Type Definition of `DataType::Struct` from `StandardAttribute::None` to `StandardAttribute::Opc`. The corresponding line in the RuntimeOpcLibrary.meta.cpp file should end up looking something like:
-
-   ```cpp
-   namespace RuntimeOpc
-   {
-   using namespace Arp::Plc::Commons::Meta;
-
-       void RuntimeOpcLibrary::InitializeTypeDomain()
-       {
-           this->typeDomain.AddTypeDefinitions
-           (
-               // Begin TypeDefinitions
-               {
-                   {   // TypeDefinition: RuntimeOpc::RuntimeOpcComponent::DATA
-                       DataType::Struct, CTN<RuntimeOpc::RuntimeOpcComponent::DATA>(), sizeof(::RuntimeOpc::RuntimeOpcComponent::DATA), alignof(::RuntimeOpc::RuntimeOpcComponent::DATA), StandardAttribute::Opc,
-                       {
-                           // FieldDefinitions:
-                           { "Runtime_RW", offsetof(::RuntimeOpc::RuntimeOpcComponent::DATA, Runtime_RW), DataType::Int32, "", sizeof(int32), alignof(int32), { }, StandardAttribute::Input },
-                           { "Runtime_RO", offsetof(::RuntimeOpc::RuntimeOpcComponent::DATA, Runtime_RO), DataType::Int32, "", sizeof(int32), alignof(int32), {  }, StandardAttribute::Output },
-                       }
-                   },
-               }
-               // End TypeDefinitions
-           );
-       }
-   } // end of namespace RuntimeOpc
    ```
 
 1. Build the project. From the root directory of the project:
@@ -117,13 +89,13 @@ This procedure was developed and tested using an AXC F 2152 PLCnext Control with
 
    This instructs the PLCnext runtime to create one instance of the RuntimeOpcComponent component, called Runtime, from the RuntimeOpc shared object library that we have just built.
 
-1. Download the application to the PLC. From the projects root directory copy the following files:
+1. Download the application to the PLC. From the project root directory copy the following files:
 
    - Shared object library containing the PLM component.
 
    ```
    ssh admin@192.168.1.10 'mkdir -p projects/RuntimeOpc'
-   scp bin/AXCF2152_19.6.0.20989/Release/lib/libRuntimeOpc.so admin@192.168.1.10:~/projects/RuntimeOpc
+   scp bin/AXCF2152_20.0.0.24752/Release/lib/libRuntimeOpc.so admin@192.168.1.10:~/projects/RuntimeOpc
    ```
 
    - PLM metadata files.
@@ -144,6 +116,14 @@ This procedure was developed and tested using an AXC F 2152 PLCnext Control with
    <Include path="*.plm.config" />
    ```
 
+1. On the PLC, edit the file `/opt/plcnext/projects/PCWE/Services/OpcUA/PCWE.opcua.config`. In the `<GdsPortsToProvide>` section, change the value `<None />` to `<All />`. That section of the file should then look like:
+
+   ```xml
+   <GdsPortsToProvide>
+     <All />
+   </GdsPortsToProvide>
+   ```
+
 1. Restart the PLCnext runtime:
 
    ```
@@ -151,11 +131,9 @@ This procedure was developed and tested using an AXC F 2152 PLCnext Control with
    ```
 
 1. In an OPC UA client like UaExpert from Unified Automation:
-   - In the Address Space pane, open the branch PLCnext -> Runtime -> Data
+   - In the Address Space pane, open the branch PLCnext -> Runtime
    - Add the two new data items to the Data Access View pane.
    - Attempt to change the value of both data items. It is not possible to change the value of the Output (read-only) data item.
-
-   If these tags are not visible in the OPC UA client, make sure that the OPC UA server is configured so that "Marked" variables are visible.
 
 These OPC UA variables can now be used by the runtime application.
 
@@ -165,6 +143,6 @@ GDS variables corresponding to the new OPC UA data items have been created and a
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

@@ -9,7 +9,7 @@ The "Acyclic Communication" RSC service can be used to read and write configurat
 There are at least two other ways to write configuration data to Axioline I/O modules:
    - Use the module "Settings" page in PLCnext Engineer.
    - Connect the I/O module to an Axioline Bus Coupler, and use Startup+ software to write configuration data to the module.
-   
+
 Configuration data is retained in the I/O module's solid-state memory, even after power is removed.
 
 ### Procedure
@@ -45,10 +45,12 @@ To configure an Axioline serial communication module from a runtime application:
    #include "Arp/Io/Axioline/Services/PdiResult.hpp"
 
    #include <syslog.h>
+   #include <libgen.h>
 
    using namespace Arp;
    using namespace Arp::System::Rsc;
    using namespace Arp::Io::Axioline::Services;
+   using namespace Arp::System::Commons::Diagnostics::Logging;
 
    bool initialised = false;  // The RSC service is available
    bool configured = false;   // The serial module is configured
@@ -108,14 +110,14 @@ To configure an Axioline serial communication module from a runtime application:
 
             if (transferResult.ErrorCode == 0)
             {
-            if (readData.size() != 16)
-            {
-               Log::Error("Unexpected response from serial module. Expected 16 bytes, got {0}", readData.size());
-            }
-            else
-            {
-               Log::Info("Configuration: 0x{0:04X}, 0x{1:04X}, 0x{2:04X}, 0x{3:04X}, ...", readData[0], readData[1], readData[2], readData[3]);
-            }
+               if (readData.size() != 16)
+               {
+                  Log::Error("Unexpected response from serial module. Expected 16 bytes, got {0}", readData.size());
+               }
+               else
+               {
+                  Log::Info("Configuration: 0x{0:04X}, 0x{1:04X}, 0x{2:04X}, 0x{3:04X}, ...", readData[0], readData[1], readData[2], readData[3]);
+               }
             }
             else
             {
@@ -136,11 +138,11 @@ To configure an Axioline serial communication module from a runtime application:
          Log::Error("Could not configure serial module - RSC service not available");
          configured = false;
       }
-      }
+   }
 
-      // Initialise PLCnext RSC services
-      void initServices()
-      {
+   // Initialise PLCnext RSC services
+   void initServices()
+   {
       if(!initialised)
       {
          Log::Info("Call of initServices");
@@ -159,11 +161,11 @@ To configure an Axioline serial communication module from a runtime application:
 
          configSerial();
       }
-      }
+   }
 
-      // Callback function for the PLC state
-      void plcOperationHandler(enum PlcOperation operation)
-      {
+   // Callback function for the PLC state
+   void plcOperationHandler(enum PlcOperation operation)
+   {
       switch (operation)
       {
          case PlcOperation_Load:
@@ -214,10 +216,10 @@ To configure an Axioline serial communication module from a runtime application:
             Log::Error("Call of unknown PLC state");
             break;
       }
-      }
+   }
 
-      int main()
-      {
+   int main(int argc, char** argv)
+   {
       // Register the status update callback
       // This is important to get the status of the "firmware ready" event, "PlcOperation_StartWarm"
       ArpPlcDomain_SetHandler(plcOperationHandler);
@@ -225,7 +227,37 @@ To configure an Axioline serial communication module from a runtime application:
       // Ask plcnext for access to its services
       // Use syslog for logging until the PLCnext logger is ready
       openlog ("runtime", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-      if (ArpSystemModule_Load("/usr/lib", "runtime", "/opt/plcnext/projects/runtime/runtime.acf.settings") != 0)
+
+      // Process command line arguments
+      string acfSettingsRelPath("");
+
+      if(argc != 2)
+      {
+         syslog (LOG_ERR, "Invalid command line arguments. Only relative path to the acf.settings file must be passed");
+         return -1;
+      }
+      else
+      {
+         acfSettingsRelPath = argv[1];
+         syslog(LOG_INFO, string("Arg Acf settings file path: " + acfSettingsRelPath).c_str());
+      }
+
+      char szExePath[PATH_MAX];
+      ssize_t count = readlink("/proc/self/exe", szExePath, PATH_MAX);
+      string strDirPath;
+      if (count != -1) {
+         strDirPath = dirname(szExePath);
+      }
+      string strSettingsFile(strDirPath);
+         strSettingsFile += "/" + acfSettingsRelPath;
+      syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
+
+      // Intialize PLCnext module application
+      // Arguments:
+      //  arpBinaryDir:    Path to Arp binaries
+      //  applicationName: Arbitrary Name of Application
+      //  acfSettingsPath: Path to *.acf.settings document to set application up
+      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
       {
          syslog (LOG_ERR, "Could not load Arp System Module");
          return -1;
@@ -248,7 +280,6 @@ To configure an Axioline serial communication module from a runtime application:
 
    </details>
 
-
    Notes on the above code:
    - This example uses the blocking functions `PdiRead` and `PdiWrite`. It is not recommended to call these functions from a high-frequency cyclic task (even once!), otherwise the required cycle time is likely to be exceeded.
    - In this example, after the  serial communication module is configured, no process data is exchanged with the module (this is a necessary requirement for a practical serial communication application). Process data exchange would typically take place an endless loop, for example in the `while(true)` loop in the `main` function.
@@ -256,25 +287,30 @@ To configure an Axioline serial communication module from a runtime application:
 1. Build the project to generate the `runtime` executable.
 
 1. Copy the executable to the PLC.
+
+   ```bash
+   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
    ```
-   scp deploy/AXCF2152_19.6.0.20989/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
-   ```
+
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
 
    It is assumed that the ACF config and settings files (described in a previous article) are already on the PLC.
 
 1. Open a secure shell session on the PLC:
-   ```
+
+   ```bash
    ssh admin@192.168.1.10
    ```
 
 1. Restart the plcnext process:
-   ```
+
+   ```bash
    sudo /etc/init.d/plcnext restart
    ```
 
 1. Check the log file. You should see messages similar to the following, indicating successful writing and reading of configuration data:
-   ```
+
+   ```text
    23.07.19 06:02:12.466 root   INFO    - Subscribed to Acyclic Communication service
    23.07.19 06:02:12.481 root   INFO    - Successfully configured serial module
    23.07.19 06:02:12.494 root   INFO    - Configuration: 0x0040, 0x0074, 0x000D, 0x000A, ...
@@ -284,6 +320,6 @@ To configure an Axioline serial communication module from a runtime application:
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

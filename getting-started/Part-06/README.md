@@ -35,12 +35,14 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 
    #include <syslog.h>
    #include <unistd.h>
+   #include <libgen.h>
    #include <thread>
    #include <pthread.h>
 
    using namespace Arp;
    using namespace Arp::System::Rsc;
    using namespace Arp::Device::Interface::Services;
+   using namespace Arp::System::Commons::Diagnostics::Logging;
 
    bool initialised = false;  // The RSC service is available
    bool processing = false;   // Axioline I/O is available
@@ -259,7 +261,7 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 
    // This function creates a real-time thread and then
    // continues with non-real-time operations
-   int main()
+   int main(int argc, char** argv)
    {
       // Variables required to create the real-time thread
       pthread_t realTimeThread;
@@ -274,7 +276,37 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
       // Ask plcnext for access to its services
       // Use syslog for logging until the PLCnext logger is ready
       openlog ("runtime", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-      if (ArpSystemModule_Load("/usr/lib", "runtime", "/opt/plcnext/projects/runtime/runtime.acf.settings") != 0)
+
+      // Process command line arguments
+      string acfSettingsRelPath("");
+
+      if(argc != 2)
+      {
+         syslog (LOG_ERR, "Invalid command line arguments. Only relative path to the acf.settings file must be passed");
+         return -1;
+      }
+      else
+      {
+         acfSettingsRelPath = argv[1];
+         syslog(LOG_INFO, string("Arg Acf settings file path: " + acfSettingsRelPath).c_str());
+      }
+
+      char szExePath[PATH_MAX];
+      ssize_t count = readlink("/proc/self/exe", szExePath, PATH_MAX);
+      string strDirPath;
+      if (count != -1) {
+         strDirPath = dirname(szExePath);
+      }
+      string strSettingsFile(strDirPath);
+         strSettingsFile += "/" + acfSettingsRelPath;
+      syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
+
+      // Intialize PLCnext module application
+      // Arguments:
+      //  arpBinaryDir:    Path to Arp binaries
+      //  applicationName: Arbitrary Name of Application
+      //  acfSettingsPath: Path to *.acf.settings document to set application up
+      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
       {
          syslog (LOG_ERR, "Could not load Arp System Module");
          return -1;
@@ -291,6 +323,10 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
             {
                if(pthread_attr_setinheritsched(&attr, PTHREAD_EXPLICIT_SCHED) == 0)
                {
+                  // This call will fail due to insufficient permissions,
+                  // if the process was not configured with the correct capabilities.
+                  // Make sure to set the capabilities on the executable
+                  // after *every* deployment to the target!
                   if(pthread_create(&realTimeThread, &attr, realTimeCycle, NULL) != 0)
                   {
                      Log::Error("Error calling pthread_create (realtime thread)");
@@ -335,7 +371,6 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 
    </details>
 
-
    Notes on the above code:
    - Real-time operations have been moved in to a separate function called `realTimeCycle`.
    - The real-time thread is created and configured in the `main` function, which then continues with non-real-time operations.
@@ -347,37 +382,45 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 1. Build the project to generate the `runtime` executable.
 
 1. Copy the executable to the PLC.
+
+   ```bash
+   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
    ```
-   scp deploy/AXCF2152_19.6.0.20989/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
-   ```
+
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
 
    It is assumed that the ACF config and settings files (described in a previous article) are already on the PLC.
 
 1. Open a secure shell session on the PLC:
-   ```
+
+   ```bash
    ssh admin@192.168.1.10
    ```
 
 1. Set the capabilites on the executable:
-   ```
+
+   ```bash
    sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/runtime/runtime
    ```
+
    This is required for the application to be able to set the real-time thread priority.
 
 1. Restart the plcnext process:
-   ```
+
+   ```bash
    sudo /etc/init.d/plcnext restart
    ```
 
 1. Run htop to check the priority of all processes.
-   ```
+
+   ```bash
    htop
    ```
+
    You should see an instance of your application running with a priority of -81.
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

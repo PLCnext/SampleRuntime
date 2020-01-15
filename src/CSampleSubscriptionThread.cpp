@@ -85,11 +85,22 @@ bool CSampleSubscriptionThread::StartProcessing()
     Log::Info("Start processing");
 
     bool bRet = false;
-    if(CreateSubscription())
+    try
     {
-        m_bDoCycle = true;
-        bRet = true;
+        if(CreateSubscription())
+        {
+            m_bDoCycle = true;
+            bRet = true;
+        }
     }
+    catch(Arp::Exception &e)
+    {
+        Log::Error("StartProcessing - Exception occured in CreateSubscription: {0}", e);
+    }
+    catch(...)
+    {
+        Log::Error("StartProcessing - Unknown Exception occured");
+    } 
 
     return(bRet);
 }
@@ -245,39 +256,60 @@ bool CSampleSubscriptionThread::ReadSubscription()
 {
     bool bRet = false;
 
-    // Read the subscription
-    if(RSCReadVariableValues(m_zSubscriptionValues) == DataAccessError::None)
+    try
     {
-        // The order of the subscription info vector is the same as the subscription values vector,
-        // we can iterate over both in the same loop
-        if(m_zSubscriptionValues.size() == m_zSubscriptionInfos.size())	// sanity-check
+        // Read the subscription
+        if(RSCReadVariableValues(m_zSubscriptionValues) == DataAccessError::None)
         {
-            for(std::size_t nCount = 0; nCount < m_zSubscriptionValues.size(); ++nCount)
+            // The order of the subscription info vector is the same as the subscription values vector,
+            // we can iterate over both in the same loop
+            if(m_zSubscriptionValues.size() == m_zSubscriptionInfos.size())	// sanity-check
             {
-                if(strcmp(m_zSubscriptionInfos[nCount].Name.CStr(), GDSPort1) == 0)
+                for(std::size_t nCount = 0; nCount < m_zSubscriptionValues.size(); ++nCount)
                 {
-                     m_zSubscriptionValues[nCount].CopyTo(m_gdsPort1);
+                    if(m_zSubscriptionValues[nCount].GetType() != RscType::Void)
+					{
+
+                        if(strcmp(m_zSubscriptionInfos[nCount].Name.CStr(), GDSPort1) == 0)
+                        {
+                            m_zSubscriptionValues[nCount].CopyTo(m_gdsPort1);
+                        }
+                        if(strcmp(m_zSubscriptionInfos[nCount].Name.CStr(), GDSPort2) == 0)
+                        {
+                            m_zSubscriptionValues[nCount].CopyTo(m_gdsPort2);
+                        }
+                        if(strcmp(m_zSubscriptionInfos[nCount].Name.CStr(), GDSPort3) == 0)
+                        {
+                            m_zSubscriptionValues[nCount].CopyTo(m_gdsPort3);
+                        }
+                    }
+                    else
+					{
+						Log::Info("Subscription {0} is not available yet. Initial value of its variable will be used!", m_zSubscriptionInfos[nCount].Name);
+					}
                 }
-                if(strcmp(m_zSubscriptionInfos[nCount].Name.CStr(), GDSPort2) == 0)
-                {
-                     m_zSubscriptionValues[nCount].CopyTo(m_gdsPort2);
-                }
-                if(strcmp(m_zSubscriptionInfos[nCount].Name.CStr(), GDSPort3) == 0)
-                {
-                     m_zSubscriptionValues[nCount].CopyTo(m_gdsPort3);
-                }
+                bRet = true;
             }
-            bRet = true;
+            else
+            {
+                Log::Error("Inconsistent size of subscription info and subscription values vector");
+            }
         }
         else
         {
-            Log::Error("Inconsistent size of subscription info and subscription values vector");
+            Log::Error("ISubscriptionService::ReadValues returned error");
         }
     }
-    else
-    {
-        Log::Error("ISubscriptionService::ReadValues returned error");
-    }
+    catch(Arp::Exception &e)
+	{
+		Log::Error("ReadSubscription - Arp Exception! {0}", e);
+	}
+	catch(...)
+	{
+		Log::Error("ReadSubscription - Unknown Exception occured");
+	}
+
+
     return(bRet);
 }
 

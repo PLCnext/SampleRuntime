@@ -31,12 +31,27 @@ using namespace std;
 
 CSampleRuntime* g_pRT;
 
-int main() {
+int main(int argc, char** argv) {
 
-    // we use syslog for logging until the PLCnext logger isn't ready
+    // Ask plcnext for access to its services
+    // Use syslog for logging until the PLCnext logger is ready
     openlog ("PLCnextSampleRuntime", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
 
     syslog (LOG_INFO, "PLCnextSampleRuntime started");
+
+    // Process command line arguments
+    string acfSettingsRelPath("");
+
+    if(argc != 2)
+    {
+        syslog (LOG_ERR, "Invalid command line arguments. Only relative path to the acf.settings file must be passed");
+        return -1;
+    }
+    else
+    {
+        acfSettingsRelPath = argv[1];
+        syslog(LOG_INFO, string("Arg Acf settings file path: " + acfSettingsRelPath).c_str());
+    }
 
     char szExePath[PATH_MAX];
     ssize_t count = readlink("/proc/self/exe", szExePath, PATH_MAX);
@@ -44,15 +59,15 @@ int main() {
     if (count != -1) {
         strDirPath = dirname(szExePath);
     }
+    string strSettingsFile(strDirPath);
+        strSettingsFile += "/" + acfSettingsRelPath;
+    syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
 
-    // First intialize PLCnext module application
+    // Intialize PLCnext module application
     // Arguments:
     //  arpBinaryDir:    Path to Arp binaries
     //  applicationName: Arbitrary Name of Application
     //  acfSettingsPath: Path to *.acf.settings document to set application up
-    string strSettingsFile(strDirPath);
-    strSettingsFile += "/runtime.acf.settings";
-
     if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
     {
         syslog (LOG_ERR, "Could not load Arp System Module Application");
