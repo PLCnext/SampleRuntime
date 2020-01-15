@@ -11,10 +11,10 @@
 |Description   | Value      |
 |--------------|------------|
 |Created       | 26.07.2019 |
-|Last modified | 26.07.2019 |
+|Last modified | 10.01.2020 |
 |Controller    | AXC F 2152 |
-|Firmware      | 2019.6     |
-|SDK           | 2019.6     |
+|Firmware      | 2020.0 LTS |
+|SDK           | 2020.0 LTS |
 
 Hardware requirements
 
@@ -33,7 +33,7 @@ Host machine software requirements:
 For steps involving the use of PLCnext Engineer:
 
 1. Windows 10 operating system.
-1. PLCnext Engineer version 2019.6.
+1. PLCnext Engineer version 2020.0.
 
 ## Introduction
 
@@ -45,9 +45,7 @@ This article provides a step by step guide to building your own runtime applicat
 
 ## Runtime applications in the PLCnext system architecture
 
-There is a [video](https://youtu.be/y38tVUaYoo8) from Phoenix Contact that gives a brief overview of the architecture of a PLCnext Control system.
-
-A modified image from that video is shown below, indicating where runtime applications are located on a PLCnext Control:
+The [PLCnext Technology Info Center](http://plcnext-infocenter.s3-website.eu-central-1.amazonaws.com/PLCnext_Technology_InfoCenter/PLCnext_Technology_InfoCenter/Home.htm) includes the following architecture diagram. The location of runtime applications is indicated by the red rectangle.
 
 ![Architecture](Picture/02_Architecture.gif)
 
@@ -57,7 +55,9 @@ Runtime applications are often the best solution for the following situations:
 
 - The development of new PLCnext Control applications in languages like Rust, Java, or Python.
 
-For **new** PLCnext Control applications written in **C++**, it is recommended to use the Application Component Framework (ACF) to develop Components and Programs in a shared object library, which can be loaded directly by the Automation Runtime Platform (ARP) and utilise the real-time Execution and Synchronisation Manager (ESM). Support for these types of applications - called "Function Extensions" - can be found in the [PLCnext Community](https://www.plcnext-community.net).
+For **new** PLCnext Control applications written in **C++**, it is recommended to use the Application Component Framework (ACF) to develop Components and Programs in a shared object library, which can be loaded directly by the Automation Runtime Platform (ARP) and utilise the real-time Execution and Synchronisation Manager (ESM). These types of applications are called "Function Extensions".
+
+The Info Center includes [more information](http://plcnext-infocenter.s3-website.eu-central-1.amazonaws.com/PLCnext_Technology_InfoCenter/PLCnext_Technology_InfoCenter/Programming/Cpp/Cpp-programming.htm) on how C++ programs like runtime applications and function extensions interact with the PLCnext runtime.
 
 ## PLCnext Control - Runtime integration
 
@@ -95,7 +95,7 @@ In the following series of technical articles, you will build your own runtime a
 | --- | ------ | ------ |
 |[01](getting-started/Part-01/README.md)| [Hello PLCnext](getting-started/Part-01/README.md)| Create a simple application in C++, and run it on a PLCnext Control.|
 |[02](getting-started/Part-02/README.md)| [PLCnext Control integration](getting-started/Part-02/README.md)| Use the PLCnext Control to start and stop the application automatically.<br/>Create PLCnext ANSI-C component instances.<br/>Write messages to the application log file. |
-|[03](getting-started/Part-03/README.md)| [Reading and writing Axioline I/O](getting-started/Part-03/README.md)| Use the PLCnext ANSI-C library to read digital inputs from an Axioline I/O module, and to write digital outputs. |
+|[03](getting-started/Part-03/README.md)| [Reading and writing Axioline I/O](getting-started/Part-03/README.md)| Use the PLCnext ANSI-C library to read digital inputs from an Axioline I/O module,<br/>write digital outputs, and read Axioline diagnostic data. |
 |[04](getting-started/Part-04/README.md)| [Getting PLCnext Control status via callbacks](getting-started/Part-04/README.md)| Use notifications from the PLCnext Control to start and stop data exchange with Axioline I/O modules. |
 |[05](getting-started/Part-05/README.md)| [Using RSC Services](getting-started/Part-05/README.md)| Use the "Device Status" RSC service to log the PLC board temperature. |
 |[06](getting-started/Part-06/README.md)| [Creating real-time threads](getting-started/Part-06/README.md)| Perform cyclic I/O processing on a real-time thread, while non-real-time operations continue on another thread. |
@@ -108,10 +108,11 @@ In the following series of technical articles, you will build your own runtime a
 ---
 
 ## How to get support
+
 You can get support in the forum of the [PLCnext Community](https://www.plcnext-community.net/index.php?option=com_easydiscuss&view=categories&Itemid=221&lang=en).
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

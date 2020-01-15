@@ -23,8 +23,10 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 
    #include <syslog.h>
    #include <unistd.h>
+   #include <libgen.h>
 
    using namespace Arp;
+   using namespace Arp::System::Commons::Diagnostics::Logging;
 
    bool processing = false;
 
@@ -182,7 +184,7 @@ It is possible to get notifications of PLCnext Control state changes via a callb
       }
    }
 
-   int main()
+   int main(int argc, char** argv)
    {
       // Register the status update callback
       // This is important to get the status of the "firmware ready" event, "PlcOperation_StartWarm"
@@ -191,7 +193,37 @@ It is possible to get notifications of PLCnext Control state changes via a callb
       // Ask plcnext for access to its services
       // Use syslog for logging until the PLCnext logger is ready
       openlog ("runtime", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-      if (ArpSystemModule_Load("/usr/lib", "runtime", "/opt/plcnext/projects/runtime/runtime.acf.settings") != 0)
+
+      // Process command line arguments
+      string acfSettingsRelPath("");
+
+      if(argc != 2)
+      {
+         syslog (LOG_ERR, "Invalid command line arguments. Only relative path to the acf.settings file must be passed");
+         return -1;
+      }
+      else
+      {
+         acfSettingsRelPath = argv[1];
+         syslog(LOG_INFO, string("Arg Acf settings file path: " + acfSettingsRelPath).c_str());
+      }
+
+      char szExePath[PATH_MAX];
+      ssize_t count = readlink("/proc/self/exe", szExePath, PATH_MAX);
+      string strDirPath;
+      if (count != -1) {
+         strDirPath = dirname(szExePath);
+      }
+      string strSettingsFile(strDirPath);
+         strSettingsFile += "/" + acfSettingsRelPath;
+      syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
+
+      // Intialize PLCnext module application
+      // Arguments:
+      //  arpBinaryDir:    Path to Arp binaries
+      //  applicationName: Arbitrary Name of Application
+      //  acfSettingsPath: Path to *.acf.settings document to set application up
+      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
       {
          syslog (LOG_ERR, "Could not load Arp System Module");
          return -1;
@@ -227,7 +259,6 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 
    </details>
 
-
    Notes on the above code:
    - The startup delay timer from the earlier example has been removed.
    - The boolean variable `processing` has been added. This is used to enable and disable I/O processing in the `main` function.
@@ -237,30 +268,35 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 1. Build the project to generate the `runtime` executable.
 
 1. Copy the executable to the PLC.
+
+   ```bash
+   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
    ```
-   scp deploy/AXCF2152_19.6.0.20989/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
-   ```
+
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
 
    It is assumed that the ACF config and settings files (described in a previous article) are already on the PLC.
 
 1. Open a secure shell session on the PLC:
-   ```
+
+   ```bash
    ssh admin@192.168.1.10
    ```
 
 1. Restart the plcnext process:
-   ```
+
+   ```bash
    sudo /etc/init.d/plcnext restart
    ```
 
 1. Check the log file to see messages for each PLC state change.
-   ```
+
+   ```bash
    cat /opt/plcnext/projects/runtime/logs/runtime.log
    ```
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

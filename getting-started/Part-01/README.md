@@ -7,21 +7,25 @@ In this article, we will create the structure of the project that we will use th
 We will call our project `runtime`, but you can call it whatever you want.
 
 1. On your Linux host, create a root directory for your project:
-   ```
+
+   ```bash
    mkdir runtime && cd runtime
    ```
 
 1. Create project sub-directories:
-   ```
+
+   ```bash
    mkdir src data tools
    ```
 
 1. Start Visual Studio Code (or your IDE of choice):
-   ```
+
+   ```bash
    code .
    ```
 
 1. In the project's `src` directory, create a file named `runtime.cpp`, containing the following text:
+
    ```cpp
    //
    // Copyright (c) 2019 Phoenix Contact GmbH & Co. KG. All rights reserved.
@@ -30,13 +34,13 @@ We will call our project `runtime`, but you can call it whatever you want.
    //
 
    #include <iostream>  
-   
+
    using namespace std;
 
-   int main() 
-   { 
-      cout<<"Hello PLCnext"; 
-      return 0; 
+   int main()
+   {
+      cout<<"Hello PLCnext";
+      return 0;
    }
    ```
 
@@ -111,7 +115,6 @@ We will call our project `runtime`, but you can call it whatever you want.
 
    </details>
 
-
 1. In the project's `tools` directory, create a file named `build-runtime.sh`, containing the following text:
    <details>
    <summary>(click to see/hide code)</summary>
@@ -164,6 +167,11 @@ We will call our project `runtime`, but you can call it whatever you want.
 
    </details>
 
+1. Make the script executable. From the `tools` directory:
+
+   ```bash
+   chmod a+x build-runtime.sh
+   ```
 
 1. Optional: If using Visual Studio Code, create a directory named `.vscode` in the project's root directory, and create a file named `tasks.json`, containing the following text:
    <details>
@@ -174,14 +182,14 @@ We will call our project `runtime`, but you can call it whatever you want.
       "version": "2.0.0",
       "tasks": [
          {
-               "label": "Build runtime for AXCF2152 2019.6",
+               "label": "Build runtime for AXCF2152 2020.0",
                "type": "shell",
                "options": {
                   "cwd": "${workspaceFolder}/tools",
                   "env": {
-                     "SDKROOT": "/opt/pxc/sdk/AXCF2152/2019.6",
+                     "SDKROOT": "/opt/pxc/sdk/AXCF2152/2020.0",
                      "ARP_DEVICE": "AXCF2152",
-                     "ARP_DEVICE_VERSION": "2019.6 (19.6.0.20989  )",
+                     "ARP_DEVICE_VERSION": "2020.0 LTS (20.0.0.24752)",
                   }
                },
                "command": "./build-runtime.sh -t \"${SDKROOT}\" -a \"${ARP_DEVICE_VERSION}\" -n \"${ARP_DEVICE}\"",
@@ -193,34 +201,43 @@ We will call our project `runtime`, but you can call it whatever you want.
 
    </details>
 
+1. Build the application. In Visual Studio Code, press F1 and execute the task created above. You can configure this as the default build task in Visual Studio Code as follows:
 
-1. Build the application. In Visual Studio Code, press F1 and execute the task created above.
+   * Press `F1` to open the command prompt.
+   * Type `Configure Default Build Task` and press enter.
+   * Choose a build task from the drop-down list.
+
+   By default, this build task can now be invoked using the keyboard shortcut `CTRL`+`SHIFT`+`B`
 
 1. Deploy the executable to the PLC.
 
    In a terminal window on the host, from the project's root directory (substituting the IP address of your PLC):
-   ```
+
+   ```bash
    ssh admin@192.168.1.10 'mkdir -p projects/runtime'
-   scp deploy/AXCF2152_19.6.0.20989/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
    ```
 
 1. Open a secure shell session on the PLC:
-   ```
+
+   ```bash
    ssh admin@192.168.1.10
    ```
 
 1. Run the program:
-   ```
+
+   ```bash
    projects/runtime/runtime
    ```
 
    You should see the output in the terminal:
-   ```
+
+   ```text
    Hello PLCnext
    ```
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

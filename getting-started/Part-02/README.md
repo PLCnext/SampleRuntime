@@ -23,7 +23,10 @@ Then, using an ACF settings file, we will specify a directory where we want appl
    schemaVersion="1.0" >
 
    <Processes>
-      <Process name="runtime" binaryPath="/opt/plcnext/projects/runtime/runtime" workingDirectory="/opt/plcnext/projects/runtime"/>
+      <Process name="runtime"
+               binaryPath="/opt/plcnext/projects/runtime/runtime"
+               workingDirectory="/opt/plcnext/projects/runtime"
+               args="runtime.acf.settings"/>
    </Processes>
 
    <Libraries>
@@ -47,8 +50,7 @@ Then, using an ACF settings file, we will specify a directory where we want appl
 
    </details>
 
-
-   In this configuration file, the `Processes` element tells the Automation Component Framework (ACF) to start and stop our `runtime` application with the plcnext process. The `Libraries` and `Components` elements tell the ACF to start special PLCnext Control components that our application will use to (for example) access Axioline I/O through an ANSI-C interface.
+   In this configuration file, the `Processes` element tells the Application Component Framework (ACF) to start and stop our `runtime` application with the plcnext process. The `Libraries` and `Components` elements tell the ACF to start special PLCnext Control components that our application will use to (for example) access Axioline I/O through an ANSI-C interface.
 
 1. In the project's `data` directory, create a file named `runtime.acf.settings`, containing the following text:
    <details>
@@ -61,9 +63,9 @@ Then, using an ACF settings file, we will specify a directory where we want appl
    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
    xsi:schemaLocation="http://www.phoenixcontact.com/schema/acfsettings.xsd"
    schemaVersion="1.0" >
-   
+
    <RscSettings path="/etc/plcnext/device/System/Rsc/Rsc.settings"/>
-   
+
    <LogSettings logLevel="Debug" logDir="logs" />
 
    <EnvironmentVariables>
@@ -75,9 +77,8 @@ Then, using an ACF settings file, we will specify a directory where we want appl
 
    </details>
 
+   This file gives the ACF additional information in order to run our application.
 
-   This file gives the ACF additional information in order to run our application. 
-   
    The value of the `logDir` attribute in the `LogSettings` element is the path where log files for this application will be created, relative to the application's working directory.
 
 1. In our `runtime.cpp` file, we must implement the following features:
@@ -99,15 +100,47 @@ Then, using an ACF settings file, we will specify a directory where we want appl
    #include "Arp/System/Commons/Logging.h"
    #include <syslog.h>
    #include <unistd.h>
-   
-   using namespace std;
+   #include <libgen.h>
 
-   int main()
+   using namespace std;
+   using namespace Arp::System::Commons::Diagnostics::Logging;
+
+   int main(int argc, char** argv)
    {
       // Ask plcnext for access to its services
       // Use syslog for logging until the PLCnext logger is ready
       openlog ("runtime", LOG_CONS | LOG_PID | LOG_NDELAY, LOG_LOCAL1);
-      if (ArpSystemModule_Load("/usr/lib", "runtime", "/opt/plcnext/projects/runtime/runtime.acf.settings") != 0)
+
+      // Process command line arguments
+      string acfSettingsRelPath("");
+
+      if(argc != 2)
+      {
+         syslog (LOG_ERR, "Invalid command line arguments. Only relative path to the acf.settings file must be passed");
+         return -1;
+      }
+      else
+      {
+         acfSettingsRelPath = argv[1];
+         syslog(LOG_INFO, string("Arg Acf settings file path: " + acfSettingsRelPath).c_str());
+      }
+
+      char szExePath[PATH_MAX];
+      ssize_t count = readlink("/proc/self/exe", szExePath, PATH_MAX);
+      string strDirPath;
+      if (count != -1) {
+         strDirPath = dirname(szExePath);
+      }
+      string strSettingsFile(strDirPath);
+         strSettingsFile += "/" + acfSettingsRelPath;
+      syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
+
+      // Intialize PLCnext module application
+      // Arguments:
+      //  arpBinaryDir:    Path to Arp binaries
+      //  applicationName: Arbitrary Name of Application
+      //  acfSettingsPath: Path to *.acf.settings document to set application up
+      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
       {
          syslog (LOG_ERR, "Could not load Arp System Module");
          return -1;
@@ -116,7 +149,7 @@ Then, using an ACF settings file, we will specify a directory where we want appl
       closelog();
 
       Log::Info("Hello PLCnext");
-      
+
       while (true)
       {
          // For now, let's catch up on some
@@ -128,14 +161,14 @@ Then, using an ACF settings file, we will specify a directory where we want appl
 
    </details>
 
-
    Notes on the above code:
+   - The name of the `.acf.settings` file is passed as a command-line argument, and then the absolute path to this file is added.
    - The call to `std::cout` in the earlier example has been replaced with a call to the PLCnext Control function `Log::Info`. This logging function provides formatted output, as we shall see below. 
    - Like all other PLCnext Control functions, the logging function is not available until after the call to `ArpSystemModule_Load`, and until then we use `syslog` to log messages.
-   - The hard-coded path to the `.acf.settings` file is not good practice, but is shown here for clarity.
    - We have included an infinite loop that simply sleeps for 1 second while waiting for the PLCnext Control to kill the runtime process.
 
 1. Modify the relevant section of the CMakeLists.txt file, so it looks like the following:
+
    ```cmake
    ################# add link targets ####################################################
 
@@ -147,50 +180,62 @@ Then, using an ACF settings file, we will specify a directory where we want appl
 
    #######################################################################################
    ```
+
    The two Arp.System libraries implement the `ArpSystemModule_Load` function.
 
 1. Build the project to generate the `runtime` executable.
 
 1. Deploy the executable to the PLC.
+
+   ```bash
+   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
    ```
-   scp deploy/AXCF2152_19.6.0.20989/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
-   ```
+
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
 
 1. Deploy the `runtime.acf.settings` file to your project directory on the PLC.
-   ```
+
+   ```bash
    scp data/runtime.acf.settings admin@192.168.1.10:~/projects/runtime
    ```
+
    The destination directory is the one we specified in the call to `ArpSystemModule_Load`.
 
 1. Deploy the `runtime.acf.config` file to the PLC's `Default` project directory.
-   ```
+
+   ```bash
    scp data/runtime.acf.config admin@192.168.1.10:~/projects/Default
    ```
+
    All `.acf.config` files in this directory are processed by the ACF when the plcnext process starts up, via the `Default.acf.config` file in the same directory.
 
 1. Open a secure shell session on the PLC:
-   ```
+
+   ```bash
    ssh admin@192.168.1.10
    ```
 
 1. Create the `logs` directory for our application:
-   ```
-   mkdir /opt/plcnext/runtime/logs
+
+   ```bash
+   mkdir /opt/plcnext/projects/runtime/logs
    ```
 
 1. Restart the plcnext process:
-   ```
+
+   ```bash
    sudo /etc/init.d/plcnext restart
    ```
 
 1. Give the plcnext process a short time to start our application, and then check that our application has started successfully by examining the plcnext log file:
 
-   ```
+   ```bash
    cat /opt/plcnext/logs/Output.log | grep runtime
    ```
+
    The result should be something like:
-   ```
+
+   ```text
    15.07.19 11:13:04.306 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Process 'runtime' started successfully.
    15.07.19 11:13:06.498 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Library 'Arp.Plc.AnsiC.Library' in process 'runtime' loaded.
    15.07.19 11:13:06.506 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Library 'Arp.Plc.Domain.Library' in process 'runtime' loaded.
@@ -200,16 +245,19 @@ Then, using an ACF settings file, we will specify a directory where we want appl
    ```
 
 1. Check the contents of the application log file:
-   ```
+
+   ```bash
    cat /opt/plcnext/projects/runtime/logs/runtime.log
    ```
+
    You should see a number of formatted output messages, including a message similar to the following:
-   ```
+
+   ```text
    16.07.19 04:19:23.355 root     INFO    - Hello PLCnext
    ```
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

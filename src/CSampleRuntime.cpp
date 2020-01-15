@@ -168,6 +168,13 @@ void PlcOperationHandler(enum PlcOperation operation)
             break;
         case PlcOperation_StartCold:
             Log::Info("Call of PLC Start Cold");
+            // when this state-change occurred, the PLCnext runtime is ready to serve requests.
+            // Now we can request the needed service-interfaces.
+            // Plc may by stopped by system watchdog so that is possible to start plc cold on system start
+            if(g_pRT->Init() == false)
+            {
+                Log::Error("Error during initialization");
+            }
             g_pRT->StartProcessing();
 
             break;

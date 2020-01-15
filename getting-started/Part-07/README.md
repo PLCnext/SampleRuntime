@@ -42,39 +42,46 @@ To run this example on a PLCnext Control:
 1. Download the PLCnext Engineer project to the PLC.
 
 1. Copy the `runtime` executable to the PLC.
+
+   ```bash
+   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
    ```
-   scp deploy/AXCF2152_19.6.0.20989/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
-   ```
+
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
 
    It is assumed that the ACF config and settings files are already on the PLC.
 
 1. Open a secure shell session on the PLC:
-   ```
+
+   ```bash
    ssh admin@192.168.1.10
    ```
 
 1. Set the capabilites on the executable:
-   ```
+
+   ```bash
    sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/runtime/runtime
    ```
 
 1. Restart the plcnext process:
-   ```
+
+   ```bash
    sudo /etc/init.d/plcnext restart
    ```
 
 1. Check the contents of the application log file:
-   ```
+
+   ```bash
    cat /opt/plcnext/projects/runtime/logs/runtime.log
    ```
+
    You should see messages containing I/O values being written to the log files 10 times each second.
 
 1. Activate the fifth input on the digital input card.
-   
+
    You should see the sixth digital output come on.
 
-The Sample Runtime application is now running. 
+The Sample Runtime application is now running.
 
 Note that there is a shell script in the  [tools](https://github.com/PLCnext/SampleRuntime/tree/master/tools) folder called `start_debug.sh`, which can be used as a template for automating the deployment, configuration and startup of the runtime application during project development.
 
@@ -176,47 +183,53 @@ The Subscription service differs from most other RSC services, in that it employ
 In order to use the Subscription service:
 
 1. Declare a shared pointer to store a service handle:
-	```cpp
-	ISubscriptionService::Ptr m_pSubscriptionService;
-	``` 
+
+   ```cpp
+   ISubscriptionService::Ptr m_pSubscriptionService;
+   ```
 
 2. Get the handle for an ISubscriptionService method:
-	```cpp
-	CSampleRuntime::Init() {
-		m_pSubscriptionService = ServiceManager::GetService<ISubscriptionService>(); //get ISubscriptionService
-	}
-	```
+
+   ```cpp
+   CSampleRuntime::Init() {
+      m_pSubscriptionService = ServiceManager::GetService<ISubscriptionService>(); //get ISubscriptionService
+   }
+   ```
 
 3. Create a subscription for the port variables: 
-	```cpp
-	CreateSubscription() {
-		m_uSubscriptionId = m_pSubscriptionService->CreateSubscription(SubscriptionKind::HighPerformance);
-		m_pSubscriptionService->AddVariable(m_uSubscriptionId, GDSPort1)
-	}
-	```
+
+   ```cpp
+   CreateSubscription() {
+      m_uSubscriptionId = m_pSubscriptionService->CreateSubscription(SubscriptionKind::HighPerformance);
+      m_pSubscriptionService->AddVariable(m_uSubscriptionId, GDSPort1)
+   }
+   ```
 
 4. Read and assign port variables:
-	```cpp
-	CSampleRuntime::ReadSubscription() {
-		RSCReadVariableValues(m_zSubscriptionValues)
-		m_zSubscriptionValues[nCount].CopyTo(m_gdsPort1)
-	}
-	```
+
+   ```cpp
+   CSampleRuntime::ReadSubscription() {
+      RSCReadVariableValues(m_zSubscriptionValues)
+      m_zSubscriptionValues[nCount].CopyTo(m_gdsPort1)
+   }
+   ```
 
 5. Delete the subscription:
-	```cpp
-	CSampleRuntime::DeleteSubscription() {
-		m_pSubscriptionService->DeleteSubscription(m_uSubscriptionId)
-	}
-	```
+
+   ```cpp
+   CSampleRuntime::DeleteSubscription() {
+      m_pSubscriptionService->DeleteSubscription(m_uSubscriptionId)
+   }
+   ```
 
 ---
 
 ## How to get support
+
 You can get support in the forum of the [PLCnext Community](https://www.plcnext-community.net/index.php?option=com_easydiscuss&view=categories&Itemid=221&lang=en).
 
 ---
 
-Copyright © 2019 Phoenix Contact Electronics GmbH
+Copyright © 2020 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.
