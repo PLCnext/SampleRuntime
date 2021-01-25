@@ -403,7 +403,7 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
    sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/runtime/runtime
    ```
 
-   This is required for the application to be able to set the real-time thread priority.
+   This is required for the application to be able to set the real-time thread priority. If the admin user is not allowed to execute this command, then please ask your system administrator to grant the admin user this privilege, or else execute the command as a user with the required privilege (e.g. root).
 
 1. Restart the plcnext process:
 
