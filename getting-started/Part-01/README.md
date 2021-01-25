@@ -201,6 +201,11 @@ We will call our project `runtime`, but you can call it whatever you want.
 
    </details>
 
+   In the above configuration file:
+   
+   * The `SDKROOT` parameter specifies the full path to the root directory of the SDK. Please change this, if necessary, to the path of the SDK that you are using.
+   * The `ARP_DEVICE` and `ARP_DEVICE_VERSION` parameters should specify the SDK device and version. Please change these if necessary.
+
 1. Build the application. In Visual Studio Code, press F1 and execute the task created above. You can configure this as the default build task in Visual Studio Code as follows:
 
    * Press `F1` to open the command prompt.
