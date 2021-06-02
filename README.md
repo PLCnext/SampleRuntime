@@ -11,7 +11,7 @@
 |Description   | Value      |
 |--------------|------------|
 |Created       | 26.07.2019 |
-|Last modified | 10.01.2020 |
+|Last modified | 02.06.2021 |
 |Controller    | AXC F 2152 |
 |Firmware      | 2020.0 LTS |
 |SDK           | 2020.0 LTS |
@@ -55,7 +55,7 @@ Runtime applications are often the best solution for the following situations:
 
 - The development of new PLCnext Control applications in languages like Rust, Java, or Python.
 
-For **new** PLCnext Control applications written in **C++**, it is recommended to use the Application Component Framework (ACF) to develop Components and Programs in a shared object library, which can be loaded directly by the Automation Runtime Platform (ARP) and utilise the real-time Execution and Synchronisation Manager (ESM). These types of applications are called "Function Extensions".
+For **new** PLCnext Control applications written in **C++**, it is recommended to use the Application Component Framework (ACF) to develop Components and Programs in a shared object library, which can be loaded directly by the Automation Runtime Platform (ARP) via the Program Library Manager (PLM) and utilise the real-time Execution and Synchronisation Manager (ESM). These types of applications are called "Extension Components". An example of how to configure a C++ program to run on the ESM, without using PLCnext Engineer, is given in the [CppExamples project](https://github.com/PLCnext/CppExamples/blob/master/Examples/NoEngineer/README.MD).
 
 The Info Center includes [more information](http://plcnext-infocenter.s3-website.eu-central-1.amazonaws.com/PLCnext_Technology_InfoCenter/PLCnext_Technology_InfoCenter/Programming/Cpp/Cpp-programming.htm) on how C++ programs like runtime applications and function extensions interact with the PLCnext runtime.
 
