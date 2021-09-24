@@ -143,7 +143,7 @@ We will call our project `runtime`, but you can call it whatever you want.
    DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
    echo CMAKE Configure
-   cmake --configure -G "Ninja" \
+   cmake -G "Ninja" \
    -DBUILD_TESTING=OFF \
    -DUSE_ARP_DEVICE=ON \
    -DCMAKE_STAGING_PREFIX="${DIR}/../deploy/" \
