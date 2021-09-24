@@ -39,7 +39,7 @@ We will call our project `runtime`, but you can call it whatever you want.
 
    int main()
    {
-      cout<<"Hello PLCnext";
+      cout << "Hello PLCnext" << endl;
       return 0;
    }
    ```
