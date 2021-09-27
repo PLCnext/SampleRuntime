@@ -62,6 +62,12 @@ To run this example on a PLCnext Control:
    ```bash
    sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/runtime/runtime
    ```
+   
+   If the admin user does not have the privilege to run this command, then you will need to grant this privilege. One way to do this is to log in as root and add a file to the directory `/etc/sudoers.d` containing this line:
+   
+   ```text
+   admin ALL=(ALL) /usr/sbin/setcap
+   ```
 
 1. Restart the plcnext process:
 
