@@ -66,8 +66,8 @@ private:
     RscVariant<512> m_rscBemoryUsage;
     RscVariant<512> m_rscBoardTemp;
     const char* m_szVendorName;
-    byte m_byCpuLoad;
-    byte m_byMemoryUsage;
+    Arp::byte m_byCpuLoad;
+    Arp::byte m_byMemoryUsage;
     int8 m_i8BoardTemp;
 };
 
