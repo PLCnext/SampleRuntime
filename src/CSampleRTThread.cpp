@@ -117,10 +117,10 @@ bool CSampleRTThread::Init()
                     // PLCnext runtime:
                     //
                     // root@axcf2152:~# getcap /usr/bin/Arp.System.Application
-                    // /usr/bin/Arp.System.Application = cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep
+                    // /usr/bin/Arp.System.Application = cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep
                     //
                     // and set the same capabilities to the application
-                    // root@axcf2152:~# setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep /opt/PLCnextSampleRuntime/PLCnextSampleRuntime
+                    // root@axcf2152:~# setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep /opt/PLCnextSampleRuntime/PLCnextSampleRuntime
                     //
                     // for convenience, the debug-script will automatically set the capabilities after download
                     if(pthread_create(&m_zRTCycleThread, &attr, CSampleRTThread::RTStaticCycle, this) == 0)
@@ -811,10 +811,10 @@ int timeCmp(struct timespec& zFirst, struct timespec& zSecond)
                     // PLCnext runtime:
                     //
                     // root@axcf2152:~# getcap /usr/bin/Arp.System.Application
-                    // /usr/bin/Arp.System.Application = cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep
+                    // /usr/bin/Arp.System.Application = cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep
                     //
                     // and set the same capabilities to the application
-                    // root@axcf2152:~# setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep /opt/PLCnextSampleRuntime/PLCnextSampleRuntime
+                    // root@axcf2152:~# setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep /opt/PLCnextSampleRuntime/PLCnextSampleRuntime
                     //
                     // for convenience, the debug-script will automatically set the capabilities after download
                     if(pthread_create(&m_zRTCycleThread, &attr, CSampleRTThread::RTStaticCycle, this) == 0)
