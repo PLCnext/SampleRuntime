@@ -22,7 +22,7 @@ echo "Copy application to target\n"
 sshpass -p "${TARGET_PASSWORD}" scp ${APP} ${TARGET_USER}@${TARGET_IP}:${REMOTE_PATH}/${APP}
 
 echo "Set needed capabilities e.g. to execute realtime threads\n"
-sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} ${COMMAND} 'setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_sys_boot,cap_sys_nice,cap_sys_time+ep '${REMOTE_PATH}/${APP}
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} ${COMMAND} 'setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep '${REMOTE_PATH}/${APP}
 
 echo "Starting plcnext firmware\n"
 sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} '/etc/init.d/plcnext start'
