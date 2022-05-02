@@ -156,24 +156,33 @@ bool CSampleRTThread::StartProcessing()
             AddOutput(m_strOut07, 1, true);
 
 
-            /* Existing axioline system variables:
-            Name										Datatype
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_HI         BYTE
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_LOW        BYTE
-            Arp.Io.AxlC/AXIO_DIAG_PARAM_REG_HI          BYTE
-            Arp.Io.AxlC/AXIO_DIAG_PARAM_REG_LOW         BYTE
-            Arp.Io.AxlC/AXIO_DIAG_PARAM_2_REG_HI        BYTE
-            Arp.Io.AxlC/AXIO_DIAG_PARAM_2_REG_LOW       BYTE
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_PW         BOOL
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_PF         BOOL
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_BUS        BOOL
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_RUN        BOOL
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_ACT        BOOL
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_RDY        BOOL
-            Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_SYSFAIL    BOOL */
+            if(ArpPlcIo_GetBufferPtrByBufferID(ARP_IO_AXIO, "DiagVars", &m_pGdsAxioDiagBuffer))
+            {
+                /* Existing axioline system variables:
+                Name                                        Datatype
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_HI       � BYTE
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_LOW        BYTE
+                Arp.Io.AxlC/AXIO_DIAG_PARAM_REG_HI          BYTE
+                Arp.Io.AxlC/AXIO_DIAG_PARAM_REG_LOW         BYTE
+                Arp.Io.AxlC/AXIO_DIAG_PARAM_2_REG_HI        BYTE
+                Arp.Io.AxlC/AXIO_DIAG_PARAM_2_REG_LOW       BYTE
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_PW         BOOL
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_PF         BOOL
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_BUS        BOOL
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_RUN        BOOL
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_ACT        BOOL
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_RDY        BOOL
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_SYSFAIL    BOOL */
 
-            String strStatusRegister = Formatter::FormatCommon("{}/AXIO_DIAG_STATUS_REG", ARP_IO_AXIO);
-            AddInput(strStatusRegister, 2, false);	// 16 bit
+                String strStatusRegister = Formatter::FormatCommon("{}/AXIO_DIAG_STATUS_REG", ARP_IO_AXIO);
+                AddAxioDiagVar(strStatusRegister, 2, false); // 16 bit
+                String strParamRegister = Formatter::FormatCommon("{}/AXIO_DIAG_PARAM_REG", ARP_IO_AXIO);
+                AddAxioDiagVar(strParamRegister, 2, false); // 16 bit
+            }
+            else
+            {
+                Log::Error("Error calling ArpPlcIo_GetBufferPtrByBufferID for diag buffer");
+            }
 
             m_bDoCycle = true;
             bRet = true;
@@ -267,6 +276,8 @@ bool CSampleRTThread::StopProcessing()
     m_pGdsInBuffer = NULL;
     ArpPlcIo_ReleaseGdsBuffer(m_pGdsOutBuffer);
     m_pGdsOutBuffer = NULL;
+    ArpPlcIo_ReleaseGdsBuffer(m_pGdsAxioDiagBuffer);
+    m_pGdsAxioDiagBuffer = NULL;
 
     // clear lists of inputs and outputs and free resources
     std::map<std::string, RAWIO>::iterator it = m_zInputsMap.begin();
@@ -283,8 +294,16 @@ bool CSampleRTThread::StopProcessing()
         it++;
     }
 
+    it = m_zAxioDiagVarsMap.begin();
+    while(it != m_zAxioDiagVarsMap.end())
+    {
+        free(it->second.pValue);
+        it++;
+    }
+
     m_zInputsMap.clear();
     m_zOutputsMap.clear();
+    m_zAxioDiagVarsMap.clear();
 
     bRet = true;
 
@@ -355,6 +374,7 @@ void CSampleRTThread::RTCycle()
             {
                 // do some processing
                 ReadInputData();
+                ReadAxioDiagVars();
                 DoLogic();
                 WriteOutputData();
             }
@@ -406,6 +426,15 @@ void CSampleRTThread::LoggingCycle()
 
                 it++;
             }
+
+            it = m_zAxioDiagVarsMap.begin();
+            while(it != m_zAxioDiagVarsMap.end())
+            {
+                RAWIO& zRawIO = it->second;
+                LogIO(zRawIO);
+
+                it++;
+            }
         }
         WAIT100ms
     }
@@ -419,13 +448,21 @@ void CSampleRTThread::LogIO(RAWIO& zRawIO)
     {
         Log::Info("{0}: {1}", zRawIO.strID, zRawIO.bValue);
     }
-    else
+    else if(zRawIO.zSize == 1)
     {
         // log first byte of value
         // if you are wondering about the formatting syntax of the Log-Class, check
         // http://fmtlib.net/latest/syntax.html
         unsigned char ucValue = *(zRawIO.pValue);
-        Log::Info("{0}: {1:#02x}", zRawIO.strID, ucValue);
+        Log::Info("{0}: {1:#04x}", zRawIO.strID, ucValue);
+    }
+    else
+    {
+        // log first 2 byte of value
+        // if you are wondering about the formatting syntax of the Log-Class, check
+        // http://fmtlib.net/latest/syntax.html
+        unsigned short usValue = *((short*)zRawIO.pValue);
+        Log::Info("{0}: {1:#06x}", zRawIO.strID, usValue);
     }
 }
 
@@ -523,6 +560,53 @@ bool CSampleRTThread::AddOutput(std::string strID, size_t zSize, bool bIsBool)
     return(bRet);
 }
 
+/// @brief          add one diagnosis variable to the list of diagVars
+/// @param strID    identifier of variable
+/// @param zSize    size in bytes
+/// @param bIsBool  true, if it is a single-bit value
+/// @return         true: success, false: failure
+bool CSampleRTThread::AddAxioDiagVar(std::string strID, size_t zSize, bool bIsBool)
+{
+    bool bRet = false;
+    RAWIO zIO;
+    zIO.strID = strID;
+    zIO.bIsBool = bIsBool;
+    zIO.zSize = zSize;
+    zIO.pValue = (unsigned char*)malloc(zSize);
+    memset(zIO.pValue, 0, zSize);
+
+    if(bIsBool)
+    {
+        // get byte- and bit-offset in AXIO-frame
+        unsigned char ucBitOffset;
+        if(ArpPlcGds_GetVariableBitOffset(m_pGdsAxioDiagBuffer, String(zIO.strID), &(zIO.nOffset), &(ucBitOffset)))
+        {
+            zIO.ucBitMask = 1 << ucBitOffset;
+            m_zAxioDiagVarsMap.insert(std::make_pair(strID, zIO));
+            bRet = true;
+        }
+        else
+        {
+            Log::Error("Error calling ArpPlcGds_GetVariableBitOffset for {0}", strID);
+        }
+    }
+    else
+    {
+        // get byte-offset in AXIO-frame
+        if(ArpPlcGds_GetVariableOffset(m_pGdsAxioDiagBuffer, String(zIO.strID), &(zIO.nOffset)))
+        {
+            m_zAxioDiagVarsMap.insert(std::make_pair(strID, zIO));
+            bRet = true;
+        }
+        else
+        {
+            Log::Error("Error calling ArpPlcGds_GetVariableOffset for {0}", strID);
+        }
+    }
+
+    return(bRet);
+}
+
 /// @brief		read inputs from AXIO frame
 /// @return		true: success, false: failure
 bool CSampleRTThread::ReadInputData(void)
@@ -537,7 +621,7 @@ bool CSampleRTThread::ReadInputData(void)
         std::map<std::string, RAWIO>::iterator it = m_zInputsMap.begin();
         while(it != m_zInputsMap.end())
         {
-            if(ReadInputValue(pFrame, it->second) == false)
+            if(ReadValue(pFrame, it->second) == false)
             {
                 bRet = false;
             }
@@ -567,6 +651,49 @@ bool CSampleRTThread::ReadInputData(void)
     return(bRet);
 }
 
+/// @brief      read diagnosis variables from AXIO frame
+/// @return     true: success, false: failure
+bool CSampleRTThread::ReadAxioDiagVars(void)
+{
+    bool bRet = true;
+
+    char* pFrame = NULL;
+
+    // begin read operation, memory buffer will be locked
+    if(ArpPlcGds_BeginRead(m_pGdsAxioDiagBuffer, &pFrame))
+    {
+        std::map<std::string, RAWIO>::iterator it = m_zAxioDiagVarsMap.begin();
+        while(it != m_zAxioDiagVarsMap.end())
+        {
+            if(ReadValue(pFrame, it->second) == false)
+            {
+                bRet = false;
+            }
+
+            // logging of IO values is done in Non-RT thread to not violate realtime
+
+            it++;
+        }
+
+        // unlock buffer
+        if(ArpPlcGds_EndRead(m_pGdsAxioDiagBuffer))
+        {
+        }
+        else
+        {
+            Log::Error("ArpPlcGds_EndRead failed");
+            bRet = false;
+        }
+    }
+    else
+    {
+        // returned false, data is not (yet) valid
+        ArpPlcGds_EndRead(m_pGdsAxioDiagBuffer);
+        bRet = false;
+    }
+
+    return(bRet);
+}
 /// @brief		do some processing
 /// @return		true: success, false: failure
 bool CSampleRTThread::DoLogic(void)
@@ -607,7 +734,7 @@ bool CSampleRTThread::WriteOutputData(void)
         std::map<std::string, RAWIO>::iterator it = m_zOutputsMap.begin();
         while(it != m_zOutputsMap.end())
         {
-            if(WriteOutputValue(pFrame, it->second) == false)
+            if(WriteValue(pFrame, it->second) == false)
             {
                 bRet = false;
             }
@@ -634,11 +761,11 @@ bool CSampleRTThread::WriteOutputData(void)
     return(bRet);
 }
 
-/// @brief			read data from a fieldbus input frame
+/// @brief			read data from a gds frame
 /// @param pFrame	frame pointer
 /// @param zIO		reference to RAWIO
 /// @return			true: success, false: failure
-bool CSampleRTThread::ReadInputValue(const char* pFrame, RAWIO& zIO)
+bool CSampleRTThread::ReadValue(const char* pFrame, RAWIO& zIO)
 {
     bool bRet = true;
 
@@ -660,11 +787,11 @@ bool CSampleRTThread::ReadInputValue(const char* pFrame, RAWIO& zIO)
     return(bRet);
 }
 
-/// @brief			write data to a fieldbus output frame
+/// @brief			write data to a gds output frame
 /// @param pFrame	frame pointer
 /// @param zIO		reference to RAWIO
 /// @return			true: success, false: failure
-bool CSampleRTThread::WriteOutputValue(char* pFrame, RAWIO& zIO)
+bool CSampleRTThread::WriteValue(char* pFrame, RAWIO& zIO)
 {
     bool bRet = true;
 
