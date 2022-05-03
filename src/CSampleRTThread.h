@@ -73,6 +73,7 @@ private:
     // GDS buffers for raw I/O access
     TGdsBuffer* m_pGdsInBuffer;
     TGdsBuffer* m_pGdsOutBuffer;
+    TGdsBuffer* m_pGdsAxioDiagBuffer;
 
     // some sample I/O IDs
     String m_strInByte;
@@ -88,18 +89,21 @@ private:
     // maps with ID of I/Os for easy access
     std::map<std::string, RAWIO> m_zInputsMap;
     std::map<std::string, RAWIO> m_zOutputsMap;
+    std::map<std::string, RAWIO> m_zAxioDiagVarsMap;
 
     void LogIO(RAWIO& zRawIO);
     bool AddInput(std::string strID, size_t zSize, bool bIsBool);
     bool AddOutput(std::string strID, size_t zSize, bool bIsBool);
+    bool AddAxioDiagVar(std::string strID, size_t zSize, bool bIsBool);
 
     // example usage of direct access to fieldbus-frame
     bool ReadInputData(void);
+    bool ReadAxioDiagVars(void);
     bool DoLogic(void);
     bool WriteOutputData(void);
 
-    bool ReadInputValue(const char* pFrame, RAWIO& zIO);
-    bool WriteOutputValue(char* pFrame, RAWIO& zIO);
+    bool ReadValue(const char* pFrame, RAWIO& zIO);
+    bool WriteValue(char* pFrame, RAWIO& zIO);
 };
 
 #endif /* CSAMPLERTTHREAD_H_ */
