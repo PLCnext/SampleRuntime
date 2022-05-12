@@ -4,7 +4,7 @@ This is part of a [series of articles](https://github.com/PLCnext/SampleRuntime)
 
 It is possible to get notifications of PLCnext Control state changes via a callback function. In this article, we will use these notifications to start and stop process data exchange with the Axioline I/O modules.
 
-1. Modify the file `runtime.cpp` so it looks like the following:
+1. Modify the file `Runtime.cpp` so it looks like the following:
    <details>
    <summary>(click to see/hide code)</summary>
 
@@ -265,12 +265,16 @@ It is possible to get notifications of PLCnext Control state changes via a callb
    - A callback function `plcOperationHandler` has been defined, which sets and resets the `processing` flag based on the state of the PLC.
    - The callback function is registered with the PLCnext Control **before** the `ArpSystemModule_Load` function is called. This ensures that all PLC state changes will be captured during startup.
 
-1. Build the project to generate the `runtime` executable.
-
-1. Copy the executable to the PLC.
+1. Build the project to generate the `Runtime` executable.
 
    ```bash
-   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   plcncli build
+   ```
+
+1. Deploy the executable to the PLC.
+
+   ```bash
+   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
@@ -292,11 +296,11 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 1. Check the log file to see messages for each PLC state change.
 
    ```bash
-   cat /opt/plcnext/projects/runtime/logs/runtime.log
+   cat /opt/plcnext/projects/Runtime/logs/Runtime.log
    ```
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

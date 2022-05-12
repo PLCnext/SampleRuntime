@@ -22,7 +22,7 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
 
    Examine the .tic file(s) in the PLC directory `/opt/plcnext/projects/PCWE/Io/Arp.Io.AxlC`. The files of interest have long, cryptic file names (e.g. `1da1f65d-b76f-4364-bfc4-f59474ccfdad.tic`). In these files, look for elements labelled "IO:Port", and note down the "NodeId", "Name" and "DataType" of each port. These will be needed for our application.
 
-1. Modify the file `runtime.cpp` so it looks like the following:
+1. Modify the file `Runtime.cpp` so it looks like the following:
    <details>
    <summary>(click to see/hide code)</summary>
 
@@ -327,12 +327,16 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
 
    The `Arp.Plc.AnsiC` library implements the ANSI-C function used to access I/O process data.
 
-1. Build the project to generate the `runtime` executable.
-
-1. Copy the executable to the PLC.
+1. Build the project to generate the `Runtime` executable.
 
    ```bash
-   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   plcncli build
+   ```
+
+1. Deploy the executable to the PLC.
+
+   ```bash
+   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
@@ -355,6 +359,6 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

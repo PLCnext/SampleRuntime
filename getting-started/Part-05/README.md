@@ -8,7 +8,7 @@ For runtime applications, which do not include a class that inherits from `Compo
 
 The example below subscribes to the "Device Status" RSC service, which provides live values for a number of PLC variables, and uses this service to write the PLC board temperature to the application log file.
 
-1. Modify the file `runtime.cpp` so it looks like the following:
+1. Modify the file `Runtime.cpp` so it looks like the following:
    <details>
    <summary>(click to see/hide code)</summary>
 
@@ -307,12 +307,16 @@ The example below subscribes to the "Device Status" RSC service, which provides 
    - In the `plcOperationHandler` callback function, the `initServices` function is called from the "Start Warm" case.
    - In the `main` functions infinite `while` loop, the current board PLC temperature is obtained from the Device Status service and written to the application log file.
 
-1. Build the project to generate the `runtime` executable.
-
-1. Copy the executable to the PLC.
+1. Build the project to generate the `Runtime` executable.
 
    ```bash
-   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   plcncli build
+   ```
+
+1. Deploy the executable to the PLC.
+
+   ```bash
+   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
@@ -334,11 +338,11 @@ The example below subscribes to the "Device Status" RSC service, which provides 
 1. Check the log file to see messages containing the current PLC board temperature.
 
    ```bash
-   cat /opt/plcnext/projects/runtime/logs/runtime.log
+   cat /opt/plcnext/projects/Runtime/logs/Runtime.log
    ```
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

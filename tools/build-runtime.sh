@@ -4,6 +4,8 @@
 #// Licensed under the MIT. See LICENSE file in the project root for full license information.
 #// SPDX-License-Identifier: MIT
 #//
+#//
+#// NOTE: This script is not required for the latest version of this project.
 while getopts t:a:n: option
 do
 case "${option}"

@@ -26,7 +26,7 @@ To configure an Axioline serial communication module from a runtime application:
 
 1. In the PLCnext Engineer project (prepared in [Part 3](../Part-03/README.md) of this series), replace all the Axioline I/O modules with a single "AXL F RS UNI 1H" module, and download the project to the PLC.
 
-1. Modify the file `runtime.cpp` so it looks like the following:
+1. Modify the file `Runtime.cpp` so it looks like the following:
    <details>
    <summary>(click to see/hide code)</summary>
 
@@ -284,12 +284,16 @@ To configure an Axioline serial communication module from a runtime application:
    - This example uses the blocking functions `PdiRead` and `PdiWrite`. It is not recommended to call these functions from a high-frequency cyclic task (even once!), otherwise the required cycle time is likely to be exceeded.
    - In this example, after the  serial communication module is configured, no process data is exchanged with the module (this is a necessary requirement for a practical serial communication application). Process data exchange would typically take place an endless loop, for example in the `while(true)` loop in the `main` function.
 
-1. Build the project to generate the `runtime` executable.
-
-1. Copy the executable to the PLC.
+1. Build the project to generate the `Runtime` executable.
 
    ```bash
-   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   plcncli build
+   ```
+
+1. Deploy the executable to the PLC.
+
+   ```bash
+   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
@@ -320,6 +324,6 @@ To configure an Axioline serial communication module from a runtime application:
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

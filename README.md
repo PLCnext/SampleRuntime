@@ -8,13 +8,13 @@
 
 ## Guide details
 
-|Description   | Value      |
-|--------------|------------|
-|Created       | 26.07.2019 |
-|Last modified | 02.06.2021 |
-|Controller    | AXC F 2152 |
-|Firmware      | 2020.0 LTS |
-|SDK           | 2020.0 LTS |
+|Description   | Value        |
+|--------------|--------------|
+|Created       | 26.07.2019   |
+|Last modified | 12.05.2022   |
+|Controller    | AXC F 2152   |
+|Firmware      | 2022.0.4 LTS |
+|SDK           | 2022.0.4 LTS |
 
 Hardware requirements
 
@@ -33,7 +33,7 @@ Host machine software requirements:
 For steps involving the use of PLCnext Engineer:
 
 1. Windows 10 operating system.
-1. PLCnext Engineer version 2020.0.
+1. PLCnext Engineer version 2022.0.
 
 ## Introduction
 
@@ -109,10 +109,10 @@ In the following series of technical articles, you will build your own runtime a
 
 ## How to get support
 
-You can get support in the forum of the [PLCnext Community](https://www.plcnext-community.net/index.php?option=com_easydiscuss&view=categories&Itemid=221&lang=en).
+You can get support in the forum of the [PLCnext Community](https://www.plcnext-community.net/forum/).
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

@@ -45,17 +45,17 @@ There are various ways to interface applications written in other languages with
 
 ### 8. Package as a PLCnext Store app
 
-There is a category of PLCnext Store app called "Runtime", which is intended for runtime applications just like the one demonstrated in this series. Check out the [runtime applications that are already in the store](https://www.plcnextstore.com/#/search?type=2).
+There is a category of PLCnext Store app called "Runtime", which is intended for runtime applications just like the one demonstrated in this series. Check out the [runtime applications that are already in the store](https://www.plcnextstore.com/eu/search?type=2).
 
 An example of a [runtime app for the PLCnext Store](https://github.com/PLCnext/PLCnextAppExamples/tree/public/DemoApps/DemoPlcnextExtensionsApps/PlcnextSampleRuntimeApp) is shown in the [PLCnextAppExamples](https://github.com/PLCnext/PLCnextAppExamples) Github repository.
 
 ---
 
 ## Contact us
-If you would like help with your idea for a PLCnext Control application, or if you just want to share your ideas or solutions with others, please get in touch on the [PLCnext Community forum](https://www.plcnext-community.net/index.php?option=com_easydiscuss&view=categories&Itemid=221&lang=en).
+If you would like help with your idea for a PLCnext Control application, or if you just want to share your ideas or solutions with others, please get in touch on the [PLCnext Community forum](https://www.plcnext-community.net/forum/).
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

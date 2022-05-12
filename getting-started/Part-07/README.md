@@ -23,15 +23,19 @@ Support files for this application - which were used in earlier articles in this
 
 Once you you have completed all parts of the series up to this point, you can build the Sample Runtime application as follows:
 
-1. In your project's `src` directory, delete the file `runtime.cpp`.
+1. In your project's `src` directory, delete the file `Runtime.cpp`.
 
 1. Copy all the source files for the Sample Runtime project into your project's `src` directory.
 
 1. Add a reference to the library `Arp.System.Lm.Services` in the CMakeLists.txt file. This provides the Licence Manager RSC service implementation.
 
-1. Build the project to generate the `runtime` executable.
+1. Build the project to generate the `Runtime` executable.
 
-To run this example on a PLCnext Control:
+   ```bash
+   plcncli build
+   ```
+
+To run this example on a PLCnext Control device:
 
 1. On a Windows 10 machine, download the PLCnext Engineer project from the [PLCnEngTestProject](https://github.com/PLCnext/SampleRuntime/tree/master/PLCnEngTestProject) directory.
 
@@ -41,10 +45,10 @@ To run this example on a PLCnext Control:
 
 1. Download the PLCnext Engineer project to the PLC.
 
-1. Copy the `runtime` executable to the PLC.
+1. Copy the `Runtime` executable to the PLC.
 
    ```bash
-   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
@@ -60,7 +64,7 @@ To run this example on a PLCnext Control:
 1. Set the capabilities on the executable:
 
    ```bash
-   sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/runtime/runtime
+   sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/Runtime/Runtime
    ```
    
    If the admin user does not have the privilege to run this command, then you will need to grant this privilege. One way to do this is to log in as root and add a file to the directory `/etc/sudoers.d` containing this line:
@@ -78,7 +82,7 @@ To run this example on a PLCnext Control:
 1. Check the contents of the application log file:
 
    ```bash
-   cat /opt/plcnext/projects/runtime/logs/runtime.log
+   cat /opt/plcnext/projects/Runtime/logs/Runtime.log
    ```
 
    You should see messages containing I/O values being written to the log files 10 times each second.
@@ -232,10 +236,10 @@ In order to use the Subscription service:
 
 ## How to get support
 
-You can get support in the forum of the [PLCnext Community](https://www.plcnext-community.net/index.php?option=com_easydiscuss&view=categories&Itemid=221&lang=en).
+You can get support in the forum of the [PLCnext Community](https://www.plcnext-community.net/forum/).
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

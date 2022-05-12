@@ -27,10 +27,10 @@ Users should always perform complete and thorough tests on their PLCnext Control
 
 ### Procedure
 
-The [procedure for disabling services](https://www.plcnext-community.net/en/hn-makers-blog/440-how-to-disable-system-components-in-the-plc-for-more-performance.html) is given in the PLCnext Community.
+The [procedure for disabling system services](https://www.plcnext.help/te/WBM/Configuration_System_Services.htm) is given in the PLCnext Info Center.
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.
