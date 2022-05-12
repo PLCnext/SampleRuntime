@@ -14,7 +14,7 @@ Some operations that are not suitable for real-time threads include:
 
 In this article, we will move the cyclic I/O processing on to a real-time thread.
 
-1. Modify the file `runtime.cpp` so it looks like the following:
+1. Modify the file `Runtime.cpp` so it looks like the following:
    <details>
    <summary>(click to see/hide code)</summary>
 
@@ -379,12 +379,16 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
    - In this example, the real-time thread is executed with a fixed cycle time of 100 milliseconds, entirely independently of the cycle time of the main (non-real-time) thread. Note that it is currently recommended to exchange data with the Axioline GDS buffer no more than once per millisecond.
    - Neither thread safety nor thread synchronisation have been considered in this example. These are important issues that must be considered in real-world projects.
 
-1. Build the project to generate the `runtime` executable.
-
-1. Copy the executable to the PLC.
+1. Build the project to generate the `Runtime` executable.
 
    ```bash
-   scp deploy/AXCF2152_20.0.0.24752/Release/bin/runtime admin@192.168.1.10:~/projects/runtime
+   plcncli build
+   ```
+
+1. Deploy the executable to the PLC.
+
+   ```bash
+   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
    Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
@@ -400,7 +404,7 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 1. Set the capabilities on the executable:
 
    ```bash
-   sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/runtime/runtime
+   sudo setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep projects/Runtime/Runtime
    ```
 
    This is required for the application to be able to set the real-time thread priority. If the admin user is not allowed to execute this command, then please ask your system administrator to grant the admin user this privilege, or else execute the command as a user with the required privilege (e.g. root).
@@ -421,6 +425,6 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 
 ---
 
-Copyright © 2020 Phoenix Contact Electronics GmbH
+Copyright © 2020-2022 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

@@ -1,0 +1,6 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProjectSettings xmlns="http://www.phoenixcontact.com/schema/cliproject">
+  <Type>runtime_project</Type>
+  <Version>0.1</Version>
+  <Name>$(name)</Name>
+</ProjectSettings>

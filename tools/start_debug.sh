@@ -3,9 +3,8 @@
 TARGET_IP="192.168.1.10"
 TARGET_USER="admin"
 TARGET_PASSWORD="123456"
-APP="runtime"
-REMOTE_PATH="/opt/plcnext/projects/runtime"
-
+APP="Runtime"
+REMOTE_PATH="/opt/plcnext/projects/Runtime"
 
 echo "Killing gdbserver, if it is running"
 sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} 'kill -9 `pidof gdbserver`'

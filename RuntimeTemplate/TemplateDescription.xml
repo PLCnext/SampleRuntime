@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TemplateDescription name="runtime_project" isRoot="true" basedOn="baseproject" supportedFirmwareVersions="19.0.0.16199" requiredCliVersion="19.0.0.660" version="1.0" 
+                     xmlns="http://www.phoenixcontact.com/schema/clitemplates" identifier="ProjectSettingsIdentifier">
+  <File name="plcnext.proj" template=".proj"/>
+  <File name="CMakeLists.txt" template="CMakeLists.txt"/>
+  <File name="$(name).acf.config" template="Runtime.acf.config" path="data"/>
+  <File name="$(name).acf.settings" template="Runtime.acf.settings" path="data"/>
+  <File name="$(name).cpp" template="Runtime.cpp" path="src"/>
+  <Description>Create a new runtime project.</Description>
+  <Example>
+    <Arguments>
+      <Argument name="name" value="CustomRuntime"/>
+    </Arguments>
+    <Description>creates a new runtime project in the directory 'CustomRuntime'</Description>
+  </Example>
+</TemplateDescription>
