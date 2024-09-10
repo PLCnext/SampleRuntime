@@ -14,11 +14,6 @@ Sample Runtime is a complete C++ project that implements a PLCnext runtime appli
 
 The source files for this application are located in the [src](https://github.com/PLCnext/SampleRuntime/tree/master/src) directory of this repository.
 
-Support files for this application - which were used in earlier articles in this series - are also available in this repository:
-- `.acf.config` and `.acf.settings` files are located in the [data](https://github.com/PLCnext/SampleRuntime/tree/master/data) folder.
-- The CMakeLists.txt file is located in the [root](https://github.com/PLCnext/SampleRuntime) of the repository.
-- The build script is located in the [tools](https://github.com/PLCnext/SampleRuntime/tree/master/tools) folder.
-
 ### Building and installing the application
 
 Once you you have completed all parts of the series up to this point, you can build the Sample Runtime application as follows:
@@ -26,8 +21,6 @@ Once you you have completed all parts of the series up to this point, you can bu
 1. In your project's `src` directory, delete the file `Runtime.cpp`.
 
 1. Copy all the source files for the Sample Runtime project into your project's `src` directory.
-
-1. Add a reference to the library `Arp.System.Lm.Services` in the CMakeLists.txt file. This provides the Licence Manager RSC service implementation.
 
 1. Build the project to generate the `Runtime` executable.
 
@@ -48,10 +41,10 @@ To run this example on a PLCnext Control device:
 1. Copy the `Runtime` executable to the PLC.
 
    ```bash
-   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
+   scp bin/AXCF2152_24.7.0.15/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
-   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
+   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo systemctl stop plcnext` before copying the file.
 
    It is assumed that the ACF config and settings files are already on the PLC.
 
@@ -76,7 +69,7 @@ To run this example on a PLCnext Control device:
 1. Restart the plcnext process:
 
    ```bash
-   sudo /etc/init.d/plcnext restart
+   sudo systemctl restart plcnext
    ```
 
 1. Check the contents of the application log file:
@@ -109,7 +102,7 @@ The Sample Runtime application includes the following source files:
 | CSampleRTThread.cpp / .h: | `CSampleRTThread` class |
 | Utility.h: | Common definitions |
 
-When the Sample Runtime application starts, the `main` function calls `ArpSystemModule_Load` and then creates a single instance of `CSampleRuntime`.
+When the Sample Runtime application starts, the `main` function calls `ArpSystemModule_Setup` and then creates a single instance of `CSampleRuntime`.
 
 The remaining sections describe the three classes used in this application. It is recommended that this be read alongside the corresponding source code.
 
@@ -240,6 +233,6 @@ You can get support in the forum of the [PLCnext Community](https://www.plcnext-
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

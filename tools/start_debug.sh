@@ -10,7 +10,7 @@ echo "Killing gdbserver, if it is running"
 sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} 'kill -9 `pidof gdbserver`'
 
 echo "Stopping plcnext firmware\n"
-sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} '/etc/init.d/plcnext stop'
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} 'systemctl stop plcnext'
 
 echo "Killing application, if it is running\n"
 sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} ${COMMAND} 'kill -9 `pidof '${APP}'`'
@@ -24,7 +24,7 @@ echo "Set needed capabilities e.g. to execute realtime threads\n"
 sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} ${COMMAND} 'setcap cap_net_bind_service,cap_net_admin,cap_net_raw,cap_ipc_lock,cap_sys_boot,cap_sys_nice,cap_sys_time+ep '${REMOTE_PATH}/${APP}
 
 echo "Starting plcnext firmware\n"
-sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} '/etc/init.d/plcnext start'
+sshpass -p "${TARGET_PASSWORD}" ssh ${TARGET_USER}@${TARGET_IP} 'systemctl start plcnext'
 
 sleep 3s
 

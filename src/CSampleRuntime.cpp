@@ -24,8 +24,8 @@ PlcOperation CSampleRuntime::m_zPLCMode = PlcOperation_None;
 CSampleRuntime::CSampleRuntime()
               : m_bInitialized(false),
                 m_szVendorName(NULL),
-                m_byCpuLoad(0),
-                m_byMemoryUsage(0),
+                m_byCpuLoad((byte)0),
+                m_byMemoryUsage((byte)0),
                 m_i8BoardTemp(0)
 {
     // announce the status-update callback

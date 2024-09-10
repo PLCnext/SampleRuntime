@@ -27,7 +27,7 @@ The PLCnext Command-Line Interface (CLI) includes a template for an ACF project,
    ```
    plcncli new acfproject -n RuntimeOpc
    cd RuntimeOpc
-   plcncli set target --add -n AXCF2152 -v 2022.0
+   plcncli set target --add -n AXCF2152 -v 2024.7
    ```
 
 1. Open the Component .hpp file in your favourite editor, and add the following GDS Port definition in the section indicated by the auto-generated comment:
@@ -47,7 +47,7 @@ The PLCnext Command-Line Interface (CLI) includes a template for an ACF project,
 
    This will create two OPC UA data items; one read/write (Input) and one read-only (Output), each holding a 32 bit integer value. Corresponding GDS variables will also be created using this information.
 
-   This `struct` can include any number of elements. The data type of each element must be taken from the C++ column of the ["Available data types"](https://www.plcnext.help/te/PLCnext_Runtime/Available_data_types.htm) table in the PLCnext Info Center.
+   This `struct` can include any number of elements. The data type of each element must be taken from the C++ column of the ["Supported elementary data types"](https://plcnext.help/te/PLCnext_Runtime/Supported_elementary_data_types.htm) table in the PLCnext Info Center.
 
 1. Auto-generate the remaining C++ source code for the project. From the root directory of the RuntimeOpc project:
 
@@ -81,7 +81,7 @@ The PLCnext Command-Line Interface (CLI) includes a template for an ACF project,
 
    ```
    ssh admin@192.168.1.10 'mkdir -p projects/RuntimeOpc'
-   scp bin/AXCF2152_22.0.3.129/Release/lib/libRuntimeOpc.so admin@192.168.1.10:~/projects/RuntimeOpc
+   scp bin/AXCF2152_24.7.0.15/Release/lib/libRuntimeOpc.so admin@192.168.1.10:~/projects/RuntimeOpc
    ```
 
    - ACF configuration file.
@@ -117,6 +117,6 @@ GDS variables corresponding to the new OPC UA data items have been created and a
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

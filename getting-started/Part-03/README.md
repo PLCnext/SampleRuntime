@@ -9,7 +9,7 @@ The Axioline bus is controlled by a PLCnext Control system component, and this A
 In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/product/1046008) to generate a set of TIC files for a specific arrangement of Axioline I/O modules. Note that it is possible to configure the Axioline bus without using PLCnext Engineer - a description of how to do this is beyond the scope of this series, but will be covered in a future technical article in the PLCnext Community.
 
 1. In PLCnext Engineer, [create a new project](https://youtu.be/I-FeT3p6cGA) that includes:
-   - A PLCnext Control with the correct firmware version.
+   - A PLCnext Control device with the correct firmware version.
    - Axioline I/O modules corresponding to your physical hardware arrangement.
 
    Make sure that there are no Programs or Tasks scheduled to run on either ESM1 or ESM2, and no connections in the PLCnext Port List.
@@ -42,6 +42,7 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
    #include <unistd.h>
    #include <libgen.h>
 
+   using namespace std;
    using namespace Arp;
    using namespace Arp::System::Commons::Diagnostics::Logging;
 
@@ -224,17 +225,17 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
          strSettingsFile += "/" + acfSettingsRelPath;
       syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
 
-      // Intialize PLCnext module application
+      // Intialise PLCnext module application
       // Arguments:
-      //  arpBinaryDir:    Path to Arp binaries
-      //  applicationName: Arbitrary Name of Application
+      //  applicationName: The name of the process defined in Runtime.acf.config
       //  acfSettingsPath: Path to *.acf.settings document to set application up
-      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
+      //  arpBinaryDir:    Path to Arp binaries
+      if (ArpSystemModule_Setup("Runtime", strSettingsFile.c_str(), "/usr/lib") != 0)
       {
-         syslog (LOG_ERR, "Could not load Arp System Module");
+         syslog (LOG_ERR, "Could not setup Arp System Module");
          return -1;
       }
-      syslog (LOG_INFO, "Loaded Arp System Module");
+      syslog (LOG_INFO, "Set Up Arp System Module");
       closelog();
 
       Log::Info("Hello PLCnext");
@@ -275,7 +276,7 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
    </details>
 
    Notes on the above code:
-   - After the call to `ArpSystemModule_Load`, we must wait for the Axioline bus configuration to be completed before attempting to access I/O data. In this case we use a timer, but there is a smarter way to do this - as we shall see in a later article.
+   - After the call to `ArpSystemModule_Setup`, we must wait for the Axioline bus configuration to be completed before attempting to access I/O data. In this case we use a timer, but there is a smarter way to do this - as we shall see in a later article.
    - In this example, the I/O read and write operations are performed in separate functions.
    - The required format of I/O port names is {Bus Type}/{NodeId}.{Name}, where {Bus Type} = "Arp.Io.AxlC", and {NodeId} and {Name} were obtained from the .tic file on the PLC.
    - In this example, we have hard-coded the I/O details (including the port name) in the read and write functions, but in a real application these types of functions should be general-purpose.
@@ -310,23 +311,6 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
 
    An important point to note is that, in this project, I/O data is transferred automatically from the GDS to Axioline I/O modules every 500μs. This should be considered for real-time tasks with very short cycle times (in the order of milliseconds).
 
-1. Modify the relevant section of the CMakeLists.txt file, so it looks like the following:
-
-   ```cmake
-   ################# add link targets ####################################################
-
-   find_package(ArpDevice REQUIRED)
-   find_package(ArpProgramming REQUIRED)
-
-   target_link_libraries(runtime PRIVATE ArpDevice ArpProgramming
-                        Arp.System.ModuleLib Arp.System.Module
-                        Arp.Plc.AnsiC)
-
-   #######################################################################################
-   ```
-
-   The `Arp.Plc.AnsiC` library implements the ANSI-C function used to access I/O process data.
-
 1. Build the project to generate the `Runtime` executable.
 
    ```bash
@@ -336,10 +320,10 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
 1. Deploy the executable to the PLC.
 
    ```bash
-   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
+   scp bin/AXCF2152_24.7.0.15/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
-   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
+   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo systemctl stop plcnext` before copying the file.
 
    It is assumed that the ACF config and settings files (described in a previous article) are already on the PLC.
 
@@ -352,13 +336,13 @@ In this article, we will use [PLCnext Engineer](http://phoenixcontact.net/produc
 1. Restart the plcnext process:
 
    ```bash
-   sudo /etc/init.d/plcnext restart
+   sudo systemctl restart plcnext
    ```
 
    After approximately 30 seconds, you should see the digital outputs set to the inverse of the digital input values.
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

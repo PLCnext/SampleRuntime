@@ -43,15 +43,15 @@ int main(int argc, char** argv)
 
    // Intialise PLCnext module application
    // Arguments:
-   //  arpBinaryDir:    Path to Arp binaries
    //  applicationName: The name of the process defined in $(name).acf.config
    //  acfSettingsPath: Path to *.acf.settings document to set application up
-   if (ArpSystemModule_Load("/usr/lib", "$(name)", strSettingsFile.c_str()) != 0)
+   //  arpBinaryDir:    Path to Arp binaries
+   if (ArpSystemModule_Setup("$(name)", strSettingsFile.c_str(), "/usr/lib") != 0)
    {
-      syslog (LOG_ERR, "Could not load Arp System Module");
+      syslog (LOG_ERR, "Could not setup Arp System Module");
       return -1;
    }
-   syslog (LOG_INFO, "Loaded Arp System Module");
+   syslog (LOG_INFO, "Set Up Arp System Module");
    closelog();
 
    Log::Info("Hello PLCnext");

@@ -25,6 +25,7 @@ It is possible to get notifications of PLCnext Control state changes via a callb
    #include <unistd.h>
    #include <libgen.h>
 
+   using namespace std;
    using namespace Arp;
    using namespace Arp::System::Commons::Diagnostics::Logging;
 
@@ -218,17 +219,17 @@ It is possible to get notifications of PLCnext Control state changes via a callb
          strSettingsFile += "/" + acfSettingsRelPath;
       syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
 
-      // Intialize PLCnext module application
+      // Intialise PLCnext module application
       // Arguments:
-      //  arpBinaryDir:    Path to Arp binaries
-      //  applicationName: Arbitrary Name of Application
+      //  applicationName: The name of the process defined in Runtime.acf.config
       //  acfSettingsPath: Path to *.acf.settings document to set application up
-      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
+      //  arpBinaryDir:    Path to Arp binaries
+      if (ArpSystemModule_Setup("Runtime", strSettingsFile.c_str(), "/usr/lib") != 0)
       {
-         syslog (LOG_ERR, "Could not load Arp System Module");
+         syslog (LOG_ERR, "Could not setup Arp System Module");
          return -1;
       }
-      syslog (LOG_INFO, "Loaded Arp System Module");
+      syslog (LOG_INFO, "Set Up Arp System Module");
       closelog();
 
       // Declare a process data item
@@ -263,7 +264,7 @@ It is possible to get notifications of PLCnext Control state changes via a callb
    - The startup delay timer from the earlier example has been removed.
    - The boolean variable `processing` has been added. This is used to enable and disable I/O processing in the `main` function.
    - A callback function `plcOperationHandler` has been defined, which sets and resets the `processing` flag based on the state of the PLC.
-   - The callback function is registered with the PLCnext Control **before** the `ArpSystemModule_Load` function is called. This ensures that all PLC state changes will be captured during startup.
+   - The callback function is registered with the PLCnext Control **before** the `ArpSystemModule_Setup` function is called. This ensures that all PLC state changes will be captured during startup.
 
 1. Build the project to generate the `Runtime` executable.
 
@@ -274,10 +275,10 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 1. Deploy the executable to the PLC.
 
    ```bash
-   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
+   scp bin/AXCF2152_24.7.0.15/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
-   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
+   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo systemctl stop plcnext` before copying the file.
 
    It is assumed that the ACF config and settings files (described in a previous article) are already on the PLC.
 
@@ -290,7 +291,7 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 1. Restart the plcnext process:
 
    ```bash
-   sudo /etc/init.d/plcnext restart
+   sudo systemctl restart plcnext
    ```
 
 1. Check the log file to see messages for each PLC state change.
@@ -301,6 +302,6 @@ It is possible to get notifications of PLCnext Control state changes via a callb
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

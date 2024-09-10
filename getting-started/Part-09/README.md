@@ -31,6 +31,6 @@ The [procedure for disabling system services](https://www.plcnext.help/te/WBM/Co
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

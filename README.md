@@ -8,13 +8,13 @@
 
 ## Guide details
 
-|Description   | Value        |
-|--------------|--------------|
-|Created       | 26.07.2019   |
-|Last modified | 12.05.2022   |
-|Controller    | AXC F 2152   |
-|Firmware      | 2022.0.4 LTS |
-|SDK           | 2022.0.4 LTS |
+|Description   | Value          |
+|--------------|----------------|
+|Created       | 26.07.2019     |
+|Last modified | 09.09.2024     |
+|Controller    | SIM-AXC F 2152 |
+|Firmware      | 2024.7         |
+|SDK           | 2024.7         |
 
 Hardware requirements
 
@@ -32,8 +32,8 @@ Host machine software requirements:
 
 For steps involving the use of PLCnext Engineer:
 
-1. Windows 10 operating system.
-1. PLCnext Engineer version 2022.0.
+1. Windows 11 operating system.
+1. PLCnext Engineer version 2024.6.
 
 ## Introduction
 
@@ -45,7 +45,7 @@ This article provides a step by step guide to building your own runtime applicat
 
 ## Runtime applications in the PLCnext system architecture
 
-The [PLCnext Technology Info Center](http://plcnext-infocenter.s3-website.eu-central-1.amazonaws.com/PLCnext_Technology_InfoCenter/PLCnext_Technology_InfoCenter/Home.htm) includes the following architecture diagram. The location of runtime applications is indicated by the red rectangle.
+The [PLCnext Technology Info Center](https://plcnext.help/te/About/Home.htm) includes the following architecture diagram. The location of runtime applications is indicated by the red rectangle.
 
 ![Architecture](Picture/02_Architecture.gif)
 
@@ -66,7 +66,7 @@ Generally, runtime applications have the following requirements:
 - Access to PLC system services, e.g. reading PLC status information.
 - The ability to run deterministic, real-time processes on the operating system.
 
-Software that does not have any of the above requirements - including most general-purpose open-source software - can usually be cross-compiled for PLCnext Control without any modification, or even installed on a PLCnext Control using a pre-built binary for a compatible architecture (e.g. ARMv7). One example of this type of application is [Node.js](https://www.plcnextstore.com/#/47). While these types of applications share some common features with PLCnext runtime applications, this guide deals with applications that utilise features unique to PLCnext Control hardware and firmware.
+Software that does not have any of the above requirements - including most general-purpose open-source software - can usually be cross-compiled for PLCnext Control without any modification, or even installed on a PLCnext Control using a pre-built binary for a compatible architecture (e.g. ARMv7). One example of this type of application is [Node-Red](https://www.plcnextstore.com/permalinks/apps/latest/60002172000507). While these types of applications share some common features with PLCnext runtime applications, this guide deals with applications that utilise features unique to PLCnext Control hardware and firmware.
 
 In order for an external application to use the services and the shared memory of the ARP firmware, the application must be started by the PLCnext runtime, and it must also initialise part of the ACF. Due to the configuration of the ARP firmware, the application is started in a separate process.
 
@@ -81,9 +81,9 @@ Relationships between these dependencies are represented in the following diagra
 ## Before getting started ...
 
 Please note that the application developed in this series of articles uses:
-- `C++`, but the same principles can be used to develop similar applications in most popular programming languages.
-- `CMake` and `Ninja`, but other build systems can be used.
-- `Bash` scripts, but other scripting languages can be used.
+- C++, but the same principles can be used to develop similar applications in most popular programming languages.
+- CMake and Ninja, but other build systems can be used.
+- Bash scripts, but other scripting languages can be used.
 - Microsoft Visual Studio Code, but any editor or IDE can be used.
 - A PLC with IP address 192.168.1.10, but any valid IP address can be used.
 
@@ -113,6 +113,6 @@ You can get support in the forum of the [PLCnext Community](https://www.plcnext-
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

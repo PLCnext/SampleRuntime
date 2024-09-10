@@ -21,7 +21,6 @@
 #include "Arp/Device/Interface/Services/IDeviceStatusService.hpp"
 #include "Arp/Device/Interface/Services/IDeviceInfoService.hpp"
 #include "Arp/System/Lm/Services/ILicenseStatusService.hpp"
-#include "Arp/System/Lm/Services/LicenseStatusServiceProxyFactory.hpp"
 #include "Arp/Plc/AnsiC/Domain/PlcOperationHandler.h"
 
 using namespace std;

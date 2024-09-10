@@ -136,15 +136,15 @@ bool CSampleRTThread::StartProcessing()
         {
             // get offsets of I/Os in Buffer
             // create port names. Format: IOSystem/DeviceNumber.NameOfIO
-            m_strInByte = Formatter::FormatCommon("{}/0.~DI8", ARP_IO_AXIO);
-            m_strIn04 = Formatter::FormatCommon("{}/0.IN04", ARP_IO_AXIO);
-            m_strIn05 = Formatter::FormatCommon("{}/0.IN05", ARP_IO_AXIO);
-            m_strIn06 = Formatter::FormatCommon("{}/0.IN06", ARP_IO_AXIO);
-            m_strIn07 = Formatter::FormatCommon("{}/0.IN07", ARP_IO_AXIO);
-            m_strOut04 = Formatter::FormatCommon("{}/0.OUT04", ARP_IO_AXIO);
-            m_strOut05 = Formatter::FormatCommon("{}/0.OUT05", ARP_IO_AXIO);
-            m_strOut06 = Formatter::FormatCommon("{}/0.OUT06", ARP_IO_AXIO);
-            m_strOut07 = Formatter::FormatCommon("{}/0.OUT07", ARP_IO_AXIO);
+            m_strInByte = String::Format("{}/0.~DI8", ARP_IO_AXIO);
+            m_strIn04 = String::Format("{}/0.IN04", ARP_IO_AXIO);
+            m_strIn05 = String::Format("{}/0.IN05", ARP_IO_AXIO);
+            m_strIn06 = String::Format("{}/0.IN06", ARP_IO_AXIO);
+            m_strIn07 = String::Format("{}/0.IN07", ARP_IO_AXIO);
+            m_strOut04 = String::Format("{}/0.OUT04", ARP_IO_AXIO);
+            m_strOut05 = String::Format("{}/0.OUT05", ARP_IO_AXIO);
+            m_strOut06 = String::Format("{}/0.OUT06", ARP_IO_AXIO);
+            m_strOut07 = String::Format("{}/0.OUT07", ARP_IO_AXIO);
             AddInput(m_strInByte, 1, false);
             AddInput(m_strIn04, 1, true);
             AddInput(m_strIn05, 1, true);
@@ -160,7 +160,7 @@ bool CSampleRTThread::StartProcessing()
             {
                 /* Existing axioline system variables:
                 Name                                        Datatype
-                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_HI         BYTE
+                Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_HI       ï¿½ BYTE
                 Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_LOW        BYTE
                 Arp.Io.AxlC/AXIO_DIAG_PARAM_REG_HI          BYTE
                 Arp.Io.AxlC/AXIO_DIAG_PARAM_REG_LOW         BYTE
@@ -174,9 +174,9 @@ bool CSampleRTThread::StartProcessing()
                 Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_RDY        BOOL
                 Arp.Io.AxlC/AXIO_DIAG_STATUS_REG_SYSFAIL    BOOL */
 
-                String strStatusRegister = Formatter::FormatCommon("{}/AXIO_DIAG_STATUS_REG", ARP_IO_AXIO);
+                String strStatusRegister = String::Format("{}/AXIO_DIAG_STATUS_REG", ARP_IO_AXIO);
                 AddAxioDiagVar(strStatusRegister, 2, false); // 16 bit
-                String strParamRegister = Formatter::FormatCommon("{}/AXIO_DIAG_PARAM_REG", ARP_IO_AXIO);
+                String strParamRegister = String::Format("{}/AXIO_DIAG_PARAM_REG", ARP_IO_AXIO);
                 AddAxioDiagVar(strParamRegister, 2, false); // 16 bit
             }
             else

@@ -47,11 +47,15 @@ target_link_options(${CMAKE_PROJECT_NAME} PRIVATE LINKER:--no-undefined)
 
 ################# add link targets ####################################################
 
+find_package(Arp QUIET)
 find_package(ArpDevice REQUIRED)
 find_package(ArpProgramming REQUIRED)
 
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ArpDevice ArpProgramming
-                      Arp.System.ModuleLib Arp.System.Module)
+if(Arp_FOUND)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Arp::ALL)
+else()
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ArpDevice ArpProgramming)
+endif()   
 
 #######################################################################################
 

@@ -30,11 +30,7 @@ For example, the runtime application could use the Notification Manager to recei
 
 The "Data Access" RSC service can be used to read and write GDS variables that are defined by other PLCnext components. This provides a simple, reliable and consistent interprocess data transfer mechanism.
 
-### 6. Connect to MQTT brokers
-
-The "MQTT Client" RSC service is not included on the PLCnext Control by default, but it can be installed if required. The MQTT Client service can be used to publish and subscribe to topics on local or remote MQTT brokers.
-
-### 7. Use other languages to develop PLCnext runtime applications
+### 6. Use other languages to develop PLCnext runtime applications
 
 This examples in this series were written entirely in C++, however it is possible to write similar applications in most modern languages that have a compiler suitable for your selected PLCnext Control (e.g. ARMv7 hard float).
 
@@ -43,7 +39,7 @@ There are various ways to interface applications written in other languages with
 - If you do not want to write any C++ code at all, then your application will need to be able to call C-style functions itself. It can then access Axioline I/O (and the PLC status) through the ANSI-C libraries on the PLCnext Control.
 - If the language is also able to call C++ functions, then the application can get access to the complete set of RSC services on the PLCnext Control.
 
-### 8. Package as a PLCnext Store app
+### 7. Package as a PLCnext Store app
 
 There is a category of PLCnext Store app called "Runtime", which is intended for runtime applications just like the one demonstrated in this series. Check out the [runtime applications that are already in the store](https://www.plcnextstore.com/eu/search?type=2).
 
@@ -56,6 +52,6 @@ If you would like help with your idea for a PLCnext Control application, or if y
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

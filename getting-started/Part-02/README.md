@@ -45,8 +45,8 @@ The required files will be created automatically using a new PLCnext CLI project
 
    You should see `runtime_project` listed as an option: 
    ```text
-   plcncli 22.0.0 LTS (22.0.0.952)
-   Copyright (c) 2018 PHOENIX CONTACT GmbH & Co. KG
+   plcncli 25.0.0.5385 (25.0.0.5385)
+   Copyright (c) 2023 PHOENIX CONTACT GmbH & Co. KG
 
    ERROR(S):
      No verb selected.
@@ -88,7 +88,7 @@ The required files will be created automatically using a new PLCnext CLI project
 
    ```bash
    cd ~/Runtime
-   plcncli set target --name AXCF2152 --version 2022.0 --add
+   plcncli set target --name AXCF2152 --version 2024.7 --add
    ```
 
 1. Build the project to generate the `Runtime` executable.
@@ -97,14 +97,16 @@ The required files will be created automatically using a new PLCnext CLI project
    plcncli build
    ```
 
+   Note: There is a compiler warning that the ArpSystemModule_Load method has been deprecated. The template project will be updated in the future to avoid this warning.
+
 1. Deploy the executable to the PLC.
 
    ```bash
    ssh admin@192.168.1.10 'mkdir -p projects/Runtime'
-   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
+   scp bin/AXCF2152_24.7.0.15/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
-   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
+   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo systemctl stop plcnext` before copying the file.
 
 1. Deploy the `Runtime.acf.settings` file to your project directory on the PLC.
 
@@ -134,28 +136,38 @@ The required files will be created automatically using a new PLCnext CLI project
    mkdir /opt/plcnext/projects/Runtime/logs
    ```
 
+1. Make sure that the application is executable:
+
+   ```bash
+   chmod a+x /opt/plcnext/projects/Runtime/Runtime
+   ```
+
 1. Restart the plcnext process:
 
    ```bash
-   sudo /etc/init.d/plcnext restart
+   sudo systemctl restart plcnext
    ```
 
 1. Give the plcnext process a short time to start our application, and then check that our application has started successfully by examining the plcnext log file:
 
    ```bash
-   cat /opt/plcnext/logs/Output.log | grep Runtime
+   cat /opt/plcnext/logs/Arp.log | grep Runtime
    ```
 
    The result should be something like:
 
    ```text
-   12.05.22 13:35:28.218 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Process 'Runtime' started successfully.
-   12.05.22 13:35:33.577 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Library 'Arp.Plc.AnsiC.Library' in process 'Runtime' loaded.
-   12.05.22 13:35:33.583 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Library 'Arp.Plc.Domain.Library' in process 'Runtime' loaded.
-   12.05.22 13:35:33.594 Arp.System.Acf.Internal.Sm.ProcessesController               INFO  - Library 'Arp.System.UmRscAuthorizator.Library' in process 'Runtime' loaded.
-   12.05.22 13:35:33.734 Arp.System.Acf.Internal.Sm.ComponentsController              INFO  - Component 'Arp.Plc.AnsiC' in process 'Runtime' created.
-   12.05.22 13:35:33.735 Arp.System.Acf.Internal.Sm.ComponentsController              INFO  - Component 'Arp.Plc.DomainProxy.IoAnsiCAdaption' in process 'Runtime' created.
-   12.05.22 13:35:33.737 Arp.System.Acf.Internal.Sm.ComponentsController              INFO  - Component 'Arp.System.UmRscAuthorizator@Runtime' in process 'Runtime' created.
+   06.09.24 16:40:18.455 Arp.System.Acf.Internal.Sm.ProcessesController       INFO  - Process 'Runtime' started successfully.
+   06.09.24 16:40:19.835 Arp.System.Acf.Internal.Sm.ProcessesController       INFO  - Library 'Arp.Plc.AnsiC.Library' in process 'Runtime' loaded.
+   06.09.24 16:40:19.847 Arp.System.Acf.Internal.Sm.ProcessesController       INFO  - Library 'Arp.Plc.Domain.Library' in process 'Runtime' loaded.
+   06.09.24 16:40:19.865 Arp.System.Acf.Internal.Sm.ProcessesController       INFO  - Library 'Arp.Plc.Esm.Library' in process 'Runtime' loaded.
+   06.09.24 16:40:19.888 Arp.System.Acf.Internal.Sm.ProcessesController       INFO  - Library 'Arp.Plc.Gds.Library' in process 'Runtime' loaded.
+   06.09.24 16:40:19.904 Arp.System.Acf.Internal.Sm.ProcessesController       INFO  - Library 'Arp.System.UmRscAuthorizator.Library' in process 'Runtime' loaded.
+   06.09.24 16:40:19.941 Arp.System.Acf.Internal.Sm.ComponentsController      INFO  - Component 'Arp.Plc.AnsiC' in process 'Runtime' created.
+   06.09.24 16:40:19.944 Arp.System.Acf.Internal.Sm.ComponentsController      INFO  - Component 'Arp.Plc.DomainProxy.IoAnsiCAdaption' in process 'Runtime' created.
+   06.09.24 16:40:19.946 Arp.System.Acf.Internal.Sm.ComponentsController      INFO  - Component 'Arp.Plc.EsmProxy@Runtime' in process 'Runtime' created.
+   06.09.24 16:40:19.948 Arp.System.Acf.Internal.Sm.ComponentsController      INFO  - Component 'Arp.Plc.GdsProxy@Runtime' in process 'Runtime' created.
+   06.09.24 16:40:19.952 Arp.System.Acf.Internal.Sm.ComponentsController      INFO  - Component 'Arp.System.UmRscAuthorizator@Runtime' in process 'Runtime' created.
    ```
 
 1. Check the contents of the application log file:
@@ -167,11 +179,11 @@ The required files will be created automatically using a new PLCnext CLI project
    You should see a number of formatted output messages, including a message similar to the following:
 
    ```text
-   12.05.22 13:35:27.719 root     INFO    - Hello PLCnext
+   06.09.24 16:49:17.933 root      INFO    - Hello PLCnext
    ```
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

@@ -39,6 +39,7 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
    #include <thread>
    #include <pthread.h>
 
+   using namespace std;
    using namespace Arp;
    using namespace Arp::System::Rsc;
    using namespace Arp::Device::Interface::Services;
@@ -301,17 +302,17 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
          strSettingsFile += "/" + acfSettingsRelPath;
       syslog(LOG_INFO, string("Acf settings file path: " + strSettingsFile).c_str());
 
-      // Intialize PLCnext module application
+      // Intialise PLCnext module application
       // Arguments:
-      //  arpBinaryDir:    Path to Arp binaries
-      //  applicationName: Arbitrary Name of Application
+      //  applicationName: The name of the process defined in Runtime.acf.config
       //  acfSettingsPath: Path to *.acf.settings document to set application up
-      if (ArpSystemModule_Load("/usr/lib", "runtime", strSettingsFile.c_str()) != 0)
+      //  arpBinaryDir:    Path to Arp binaries
+      if (ArpSystemModule_Setup("Runtime", strSettingsFile.c_str(), "/usr/lib") != 0)
       {
-         syslog (LOG_ERR, "Could not load Arp System Module");
+         syslog (LOG_ERR, "Could not setup Arp System Module");
          return -1;
       }
-      syslog (LOG_INFO, "Loaded Arp System Module");
+      syslog (LOG_INFO, "Set Up Arp System Module");
       closelog();
 
       // Create the real-time thread
@@ -388,10 +389,10 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 1. Deploy the executable to the PLC.
 
    ```bash
-   scp bin/AXCF2152_22.0.4.144/Release/Runtime admin@192.168.1.10:~/projects/Runtime
+   scp bin/AXCF2152_24.7.0.15/Release/Runtime admin@192.168.1.10:~/projects/Runtime
    ```
 
-   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo /etc/init.d/plcnext stop` before copying the file.
+   Note: If you receive a "Text file busy" message in response to this command, then the file is probably locked by the PLCnext Control. In this case, stop the plcnext process on the PLC with the command `sudo systemctl stop plcnext` before copying the file.
 
    It is assumed that the ACF config and settings files (described in a previous article) are already on the PLC.
 
@@ -412,7 +413,7 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 1. Restart the plcnext process:
 
    ```bash
-   sudo /etc/init.d/plcnext restart
+   sudo systemctl restart plcnext
    ```
 
 1. Run htop to check the priority of all processes.
@@ -425,6 +426,6 @@ In this article, we will move the cyclic I/O processing on to a real-time thread
 
 ---
 
-Copyright © 2020-2022 Phoenix Contact Electronics GmbH
+Copyright © 2020-2024 Phoenix Contact Electronics GmbH
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.
