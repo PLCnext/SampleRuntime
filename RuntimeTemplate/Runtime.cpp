@@ -1,16 +1,16 @@
 //
-// Copyright (c) 2019-2022 Phoenix Contact GmbH & Co. KG. All rights reserved.
+// Copyright (c) 2019-2026 Phoenix Contact GmbH & Co. KG. All rights reserved.
 // Licensed under the MIT. See LICENSE file in the project root for full license information.
 // SPDX-License-Identifier: MIT
 //
 #include "Arp/System/ModuleLib/Module.h"
-#include "Arp/System/Commons/Logging.h"
+#include "Arp/Base/Commons/Logging/Log.hpp"
 #include <syslog.h>
 #include <unistd.h>
 #include <libgen.h>
 
 using namespace std;
-using namespace Arp::System::Commons::Diagnostics::Logging;
+using namespace Arp::Base::Commons::Logging;
 
 int main(int argc, char** argv)
 {

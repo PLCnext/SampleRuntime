@@ -11,10 +11,10 @@
 |Description   | Value          |
 |--------------|----------------|
 |Created       | 26.07.2019     |
-|Last modified | 09.09.2024     |
-|Controller    | SIM-AXC F 2152 |
-|Firmware      | 2024.7         |
-|SDK           | 2024.7         |
+|Last modified | 09.04.2026     |
+|Controller    | AXC F 2152     |
+|Firmware      | 2026.0         |
+|SDK           | 2026.0         |
 
 Hardware requirements
 
@@ -33,7 +33,7 @@ Host machine software requirements:
 For steps involving the use of PLCnext Engineer:
 
 1. Windows 11 operating system.
-1. PLCnext Engineer version 2024.6.
+1. PLCnext Engineer version 2026.0 or later.
 
 ## Introduction
 
@@ -113,6 +113,6 @@ You can get support in the forum of the [PLCnext Community](https://www.plcnext-
 
 ---
 
-Copyright © 2020-2024 Phoenix Contact Electronics GmbH
+Copyright © 2020-2026 Phoenix Contact GmbH & Co. KG
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.

@@ -233,6 +233,6 @@ You can get support in the forum of the [PLCnext Community](https://www.plcnext-
 
 ---
 
-Copyright © 2020-2024 Phoenix Contact Electronics GmbH
+Copyright © 2020-2026 Phoenix Contact GmbH & Co. KG
 
 All rights reserved. This program and the accompanying materials are made available under the terms of the [MIT License](http://opensource.org/licenses/MIT) which accompanies this distribution.
