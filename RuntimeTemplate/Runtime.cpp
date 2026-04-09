@@ -54,6 +54,7 @@ int main(int argc, char** argv)
    syslog (LOG_INFO, "Set Up Arp System Module");
    closelog();
 
+   Log::Initialize("$(name)");
    Log::Info("Hello PLCnext");
 
    // Endless loop with sleep.
